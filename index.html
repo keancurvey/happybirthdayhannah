@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>hannahseventeen</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <main class="stage" id="stage">
+    <section class="cassette-screen" id="cassette-screen" aria-label="Cassette">
+
+      <div class="cassette" id="cassette">
+        <svg viewBox="0 0 560 360" role="img" aria-label="Cassette tape" xmlns="http://www.w3.org/2000/svg">
+          <!-- soft offset shadow -->
+          <rect class="c-shadow" x="18" y="20" width="540" height="340" rx="22"/>
+          <!-- shell -->
+          <rect class="c-body" x="4" y="6" width="540" height="340" rx="22"/>
+          <!-- screws -->
+          <g class="c-screw">
+            <circle cx="32" cy="34" r="8"/><line x1="27" y1="34" x2="37" y2="34"/>
+            <circle cx="516" cy="34" r="8"/><line x1="511" y1="34" x2="521" y2="34"/>
+            <circle cx="32" cy="318" r="8"/><line x1="27" y1="318" x2="37" y2="318"/>
+            <circle cx="516" cy="318" r="8"/><line x1="511" y1="318" x2="521" y2="318"/>
+          </g>
+          <!-- label -->
+          <rect class="c-label" x="54" y="30" width="440" height="150" rx="10"/>
+          <rect class="c-stripe-cherry" x="54" y="52" width="440" height="9"/>
+          <rect class="c-stripe-mustard" x="54" y="61" width="440" height="5"/>
+          <text class="c-title" id="cassette-title" x="274" y="112" text-anchor="middle"></text>
+          <text class="c-artist" id="cassette-artist" x="274" y="150" text-anchor="middle"></text>
+          <!-- tape window -->
+          <rect class="c-window" x="124" y="194" width="300" height="84" rx="42"/>
+          <g transform="translate(190 236)">
+            <g class="reel">
+              <circle class="reel-ring" r="26"/>
+              <line x1="-21" y1="0" x2="21" y2="0"/>
+              <line x1="-21" y1="0" x2="21" y2="0" transform="rotate(60)"/>
+              <line x1="-21" y1="0" x2="21" y2="0" transform="rotate(120)"/>
+              <circle class="reel-hub" r="9"/>
+            </g>
+          </g>
+          <g transform="translate(358 236)">
+            <g class="reel">
+              <circle class="reel-ring" r="26"/>
+              <line x1="-21" y1="0" x2="21" y2="0"/>
+              <line x1="-21" y1="0" x2="21" y2="0" transform="rotate(60)"/>
+              <line x1="-21" y1="0" x2="21" y2="0" transform="rotate(120)"/>
+              <circle class="reel-hub" r="9"/>
+            </g>
+          </g>
+          <!-- bottom plate -->
+          <path class="c-plate" d="M104 346 L136 292 L412 292 L444 346 Z"/>
+          <circle class="c-hole" cx="170" cy="320" r="7"/>
+          <circle class="c-hole" cx="378" cy="320" r="7"/>
+          <circle class="c-hole" cx="274" cy="320" r="5"/>
+        </svg>
+      </div>
+
+      <div class="play-area" id="play-area">
+        <button type="button" class="play-key" id="play-btn" aria-label="Play" disabled>
+          <svg class="play-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3 L21 12 L5 21 Z"/></svg>
+          <span>PLAY</span>
+        </button>
+        <p class="load-status" id="load-status" role="status">loading tape…</p>
+      </div>
+
+    </section>
+  </main>
+
+  <div class="mini-player" id="mini-player" role="group" aria-label="Music player" inert>
+    <div class="mini-cassette" id="mini-cassette" aria-hidden="true">
+      <svg viewBox="0 0 52 34" xmlns="http://www.w3.org/2000/svg">
+        <rect class="c-body" x="1.5" y="1.5" width="49" height="31" rx="5"/>
+        <rect class="c-label" x="6" y="5" width="40" height="10" rx="2"/>
+        <rect class="c-window" x="12" y="18" width="28" height="10" rx="5"/>
+        <g transform="translate(19 23)"><g class="reel"><circle class="reel-ring" r="3.6"/><line x1="-3" y1="0" x2="3" y2="0"/></g></g>
+        <g transform="translate(33 23)"><g class="reel"><circle class="reel-ring" r="3.6"/><line x1="-3" y1="0" x2="3" y2="0"/></g></g>
+      </svg>
+    </div>
+
+    <div class="mini-meta">
+      <span class="mini-title" id="mini-title"></span>
+      <span class="mini-artist" id="mini-artist"></span>
+    </div>
+
+    <button type="button" class="mini-toggle" id="mini-toggle" aria-label="Play">
+      <svg class="icon-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4 L20 12 L7 20 Z"/></svg>
+      <svg class="icon-pause" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="4" width="4.5" height="16" rx="1"/><rect x="13.5" y="4" width="4.5" height="16" rx="1"/></svg>
+    </button>
+
+    <div class="seek">
+      <div class="seek-track"><div class="seek-fill" id="seek-fill"></div></div>
+      <input type="range" class="seek-input" id="mini-seek" min="0" max="1000" step="any" value="0" aria-label="Seek">
+    </div>
+
+    <span class="mini-time" id="mini-time">0:00 / --:--</span>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
