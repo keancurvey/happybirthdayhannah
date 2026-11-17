@@ -104,13 +104,16 @@ body::before {
   to { transform: rotate(360deg); }
 }
 
-/* Cassette slides down and shrinks into the mini player (--dx, --dy, --s set by script.js) */
+/* The cassette stays centred, reels spinning, for --dock-wait after PLAY, then slides down and
+   shrinks into the mini player (--dx, --dy, --s set by script.js). */
+:root { --dock-wait: 5s; }
+
 .cassette.is-docking {
   transform: translate(var(--dx, 0px), var(--dy, 0px)) scale(var(--s, 0.1));
   opacity: 0;
   transition:
-    transform 1.1s cubic-bezier(0.6, 0, 0.3, 1) 0.7s,
-    opacity 0.35s ease 1.5s;
+    transform 1.1s cubic-bezier(0.6, 0, 0.3, 1) calc(var(--dock-wait) + 0.7s),
+    opacity 0.35s ease calc(var(--dock-wait) + 1.5s);
 }
 
 /* ---------- PLAY key ---------- */
@@ -192,7 +195,7 @@ body::before {
 .mini-player.is-visible {
   opacity: 1;
   pointer-events: auto;
-  transition: opacity 0.5s ease 1.3s;
+  transition: opacity 0.5s ease calc(var(--dock-wait) + 1.3s);
 }
 
 .mini-cassette { flex: 0 0 52px; height: 34px; }
@@ -421,7 +424,7 @@ body::before {
   .play-key, .mini-toggle { transition: none; }
   .cassette.is-docking {
     transform: none;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.3s ease var(--dock-wait);
   }
-  .mini-player.is-visible { transition: opacity 0.3s ease; }
+  .mini-player.is-visible { transition: opacity 0.3s ease calc(var(--dock-wait) + 0.3s); }
 }

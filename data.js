@@ -9,7 +9,7 @@ window.SITE = {
     { file: "images/02.png", title: "Hannakshiemushi", cue: 28,
       caption: "She is my Hannakshiemushi, the cutest, the kindest, and the biggest crybaby cutie. (Yes, she’s probably tearing up at this card already.)" },
     { file: "images/03.png", title: "The planner", cue: 46,
-      caption: "She’s got a plan, and a checklist to go with it. One day she’ll be the professional who makes everyone’s lives a little easier. I’m calling dibs on being her first fan." },
+      caption: "She plans ahead because she cares about doing things right. One day that care will make everyone’s lives a little easier. Remember who said it first, I’m her first fan." },
     { file: "images/04.png", title: "Quirky mode", cue: 64,
       caption: "Her quirky side is sipping ketchup straight from the packet. Yes, we both do it. No, we will not be explaining ourselves." },
     { file: "images/05.png", title: "Her heart", cue: 82,
@@ -29,7 +29,7 @@ window.SITE = {
     { file: "images/12.png", title: "The future", cue: 208,
       caption: "Look at what’s ahead, her own path, her own lens, her own colors. Wherever she goes, she brings light to everyone around her. You’ve brightened my world more than you know." },
     { file: "images/13.png", title: "The sign-off", cue: 226,
-      caption: "Happy Birthday, Hannah Del Mundo 🍒" }
+      caption: "One more year of you, and the world is better for it. Happy Birthday, Hannah Del Mundo 💗🎂" }
   ],
   transition: { fromEnd: 24 },
   letter: { paragraphs: ["Your letter goes here."], signature: "Kean" }
