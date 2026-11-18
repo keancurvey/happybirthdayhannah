@@ -73,6 +73,54 @@
     <div class="caption" id="caption"><p class="caption-text" id="caption-text"></p></div>
   </div>
 
+  <div class="letter-scene" id="letter-scene">
+    <div class="env-slide" id="env-slide">
+      <div class="env-wrap" id="env-wrap">
+        <div class="env-stage">
+          <!-- back of the envelope -->
+          <svg class="env-layer env-back" viewBox="0 0 520 340" aria-hidden="true">
+            <rect x="2" y="2" width="516" height="336" rx="6"/>
+          </svg>
+          <!-- the flap, open: behind the paper, above the envelope -->
+          <svg class="env-layer env-flap-open" id="env-flap-open" viewBox="0 0 520 200" aria-hidden="true">
+            <polygon points="2,198 518,198 260,6"/>
+          </svg>
+          <!-- the folded paper with the preview -->
+          <div class="env-paper" id="env-paper">
+            <p class="env-preview" id="env-preview"></p>
+          </div>
+          <!-- the front pocket -->
+          <svg class="env-layer env-front" viewBox="0 0 520 340" aria-hidden="true">
+            <path class="pocket" d="M2 2 L260 160 L518 2 L518 338 L2 338 Z"/>
+            <path class="pocket-fold" d="M2 338 L260 160 L518 338"/>
+          </svg>
+          <!-- the flap, closed, with the cherry-red wax seal -->
+          <svg class="env-layer env-flap" id="env-flap" viewBox="0 0 520 240" aria-hidden="true">
+            <polygon class="flap" points="2,2 518,2 260,170"/>
+            <g class="seal" transform="translate(260 166)">
+              <circle class="seal-body" r="30"/>
+              <circle class="seal-ring" r="22"/>
+              <path class="seal-heart" d="M0 9 C-15 -2 -12 -14 -5 -14 C-2 -14 0 -11 0 -9 C0 -11 2 -14 5 -14 C12 -14 15 -2 0 9 Z"/>
+            </g>
+          </svg>
+          <button type="button" class="env-btn" id="envelope" aria-label="Open the letter" disabled></button>
+        </div>
+        <button type="button" class="read-more" id="read-more" aria-label="Read more of the letter" disabled>Read more</button>
+      </div>
+    </div>
+
+    <div class="letter-panel" id="letter-panel" role="dialog" aria-label="Letter" inert>
+      <button type="button" class="letter-close" id="letter-close" aria-label="Close the letter">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6 L18 18 M18 6 L6 18"/></svg>
+      </button>
+      <div class="letter-body" id="letter-body">
+        <div class="letter-text" id="letter-text"></div>
+        <p class="letter-sign" id="letter-sign"></p>
+        <button type="button" class="replay" id="replay" aria-label="Replay from the start">replay from the start</button>
+      </div>
+    </div>
+  </div>
+
   <div class="mini-player" id="mini-player" role="group" aria-label="Music player" inert>
     <div class="mini-cassette" id="mini-cassette" aria-hidden="true">
       <svg viewBox="0 0 52 34" xmlns="http://www.w3.org/2000/svg">

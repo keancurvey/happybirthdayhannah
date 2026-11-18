@@ -52,7 +52,7 @@
     return a;
   }
 
-  // Length of photo i's slot in seconds. The last photo has no end yet (Phase 3 adds the transition).
+  // Length of photo i's slot in seconds. The last photo has no fixed length here: the transition ends it.
   function slotLength(cues, i) {
     return i + 1 < cues.length ? cues[i + 1] - cues[i] : Infinity;
   }
@@ -246,8 +246,138 @@
     };
   }
 
+  // ----- Phase 3: end-of-song transition -----
+  // Pure functions of t (song 1 time, s) and D (song 1 duration, s). No DOM, no clock.
+  // Seconds before the end:  24 photo 13's slot ends and the sign-off lingers
+  //                          19.2 to 18 the sign-off caption fades (finished by 18)
+  //                          18 to 16 the board settles (photo 13 tucks toward the centre)
+  //                          16 the envelope slides in      8 it becomes tappable
+  //                          6 to 0 song 1 volume eases to 0
+
+  var TR = {
+    slotEnd: 24,
+    captionGone: 18,     // the caption has finished fading this long before the end
+    settleFrom: 18,
+    settleTo: 16,
+    envelopeAt: 16,
+    slideDur: 2.5,       // s, envelope slide-in
+    tappableAt: 8,
+    volumeFrom: 6,
+    settleScale: 0.6,    // photo 13 shrinks to this while it tucks toward the centre
+    reducedFade: 0.6     // s, envelope fade-in under reduced motion
+  };
+
+  // After the envelope tap: the clock is song 2's time T (s since song 2 started)
+  var LT = {
+    flapAt: 0.2, flapDur: 0.9,     // the flap flips open
+    riseAt: 1.1, riseDur: 1.3,     // the folded paper rises
+    writeAt: 2.6,                  // the preview starts writing
+    readMoreAt: 2.8, readMoreFade: 0.5
+  };
+
+  // D from the audio, or from the cues when the duration is unavailable:
+  // last cue + the last cue spacing + fromEnd (226 + 18 + 24 = 268 for the plan's cues).
+  function effectiveDuration(d, cues, fromEnd) {
+    if (isFinite(d) && d > 0) return d;
+    var n = cues.length;
+    if (!n) return fromEnd;
+    var last = cues[n - 1];
+    var step = n > 1 ? last - cues[n - 2] : 0;
+    return last + step + fromEnd;
+  }
+
+  // Opacity of the last caption (the sign-off). 1 until it starts to fade, 0 once it has faded.
+  function captionFade(t, D) {
+    return clamp((D - TR.captionGone - t) / CFG.fadeOut, 0, 1);
+  }
+
+  // 0..1, how far the board has settled. Reduced motion: a step, no movement.
+  function settleProgress(t, D, reduced) {
+    var from = D - TR.settleFrom;
+    if (reduced) return t >= from ? 1 : 0;
+    return clamp((t - from) / (TR.settleFrom - TR.settleTo), 0, 1);
+  }
+
+  // Envelope before the tap. offset is the share of the slide-in travel still to go (1 to 0).
+  function envelopeState(t, D, reduced) {
+    var at = D - TR.envelopeAt;
+    var visible = t >= at;
+    var u = clamp((t - at) / TR.slideDur, 0, 1);
+    var opacity = 0;
+    if (visible) opacity = reduced ? clamp((t - at) / TR.reducedFade, 0, 1) : clamp(u / 0.4, 0, 1);
+    return {
+      visible: visible,
+      slide: u,
+      offset: reduced ? 0 : 1 - easeOutCubic(u),
+      opacity: opacity,
+      tappable: t >= D - TR.tappableAt
+    };
+  }
+
+  // Song 1 volume: 1 until D - 6, then a smooth ease down to 0 at D.
+  function volumeAt(t, D) {
+    var u = clamp((t - (D - TR.volumeFrom)) / TR.volumeFrom, 0, 1);
+    return 0.5 * (1 + Math.cos(Math.PI * u));
+  }
+
+  // Everything the transition does at time t. slotEnd is data.js transition.fromEnd.
+  function transitionState(t, D, reduced, slotEnd) {
+    var se = slotEnd === undefined ? TR.slotEnd : slotEnd;
+    var stage = 'tappable';
+    if (t < D - se) stage = 'collage';
+    else if (t < D - TR.captionGone - CFG.fadeOut) stage = 'signoff';
+    else if (t < D - TR.settleFrom) stage = 'caption-fade';
+    else if (t < D - TR.envelopeAt) stage = 'settle';
+    else if (t < D - TR.tappableAt) stage = 'envelope';
+    return {
+      stage: stage,
+      slotEnded: t >= D - se,
+      captionOpacity: captionFade(t, D),
+      settle: settleProgress(t, D, reduced),
+      envelope: envelopeState(t, D, reduced),
+      volume: volumeAt(t, D)
+    };
+  }
+
+  // Photo 13 has no pile slot. While the board settles it drifts to the board centre, shrinks and fades.
+  function settlePose(p, L, u) {
+    if (!(u > 0)) return p;
+    var e = easeInOutCubic(u);
+    return {
+      visible: p.visible,
+      x: lerp(p.x, L.w / 2, e),
+      y: lerp(p.y, L.h / 2, e),
+      r: lerp(p.r, 0, e),
+      s: lerp(p.s, p.s * TR.settleScale, e),
+      o: p.o * (1 - e)
+    };
+  }
+
+  // Envelope opening and the preview, from song 2's time T.
+  function letterState(T, reduced) {
+    var wa = reduced ? 0 : LT.writeAt;
+    var rm = reduced ? CFG.fadeInReduced : LT.readMoreAt;
+    return {
+      flap: reduced ? (T >= 0 ? 1 : 0) : easeInOutCubic(clamp((T - LT.flapAt) / LT.flapDur, 0, 1)),
+      rise: reduced ? (T >= 0 ? 1 : 0) : easeOutCubic(clamp((T - LT.riseAt) / LT.riseDur, 0, 1)),
+      writeDt: T - wa,
+      previewOpacity: reduced ? clamp((T - wa) / CFG.fadeInReduced, 0, 1) : 1,
+      readMore: clamp((T - rm) / LT.readMoreFade, 0, 1)
+    };
+  }
+
   var Logic = {
     CFG: CFG,
+    TR: TR,
+    LT: LT,
+    effectiveDuration: effectiveDuration,
+    captionFade: captionFade,
+    settleProgress: settleProgress,
+    envelopeState: envelopeState,
+    volumeAt: volumeAt,
+    transitionState: transitionState,
+    settlePose: settlePose,
+    letterState: letterState,
     activeIndex: activeIndex,
     slotLength: slotLength,
     stickerSide: stickerSide,
@@ -293,7 +423,22 @@
     time:      $('mini-time'),
     board:     $('board'),
     caption:   $('caption'),
-    captionText: $('caption-text')
+    captionText: $('caption-text'),
+    scene:     $('letter-scene'),
+    envSlide:  $('env-slide'),
+    envWrap:   $('env-wrap'),
+    envBtn:    $('envelope'),
+    envClosed: $('env-flap'),
+    envOpen:   $('env-flap-open'),
+    envPaper:  $('env-paper'),
+    envPreview: $('env-preview'),
+    readMore:  $('read-more'),
+    panel:     $('letter-panel'),
+    panelClose: $('letter-close'),
+    letterText: $('letter-text'),
+    letterSign: $('letter-sign'),
+    letterBody: $('letter-body'),
+    replay:    $('replay')
   };
 
   var state = {
@@ -302,10 +447,10 @@
     dragging: false,
     loadStart: performance.now(),
     lastTimeText: '',
-    lastPlaying: null
+    lastPlaying: null,
+    tapped: false,         // envelope tapped: the clock is song 2's from now on
+    song2Rejected: false   // song 2's play() was refused (missing file or blocked)
   };
-
-  function noop() {}
 
   // ---------- Content from data.js ----------
 
@@ -319,6 +464,17 @@
 
   var audio = new Audio();
   audio.preload = 'auto';
+
+  // Song 2 (the letter song). `active` is the audio the mini player controls: song 1 until the envelope tap.
+  var song2 = SITE.songs.letter;
+  var audio2 = new Audio();
+  audio2.preload = 'auto';
+  var active = audio;
+
+  function loadSong2() {
+    audio2.src = song2.src; // starts loading once the page is ready; a missing file only sets audio2.error
+    audio2.load();
+  }
 
   // ---------- Preloading ----------
 
@@ -353,6 +509,7 @@
     state.ready = true;
     els.playBtn.disabled = false;
     els.status.textContent = '';
+    loadSong2();
   }
 
   Promise.all(SITE.photos.map(function (p) { return preloadImage(p.file); }).concat(preloadAudio()))
@@ -361,8 +518,13 @@
   // ---------- PLAY: song starts inside the click, cassette docks into the mini player ----------
 
   function startPlayback() {
-    var p = audio.play();
-    if (p && p.catch) p.catch(noop); // blocked or missing file: the mini player's play button is the fallback
+    var a = active;
+    var p = a.play();
+    if (p && p.then) {
+      // blocked or missing file: nothing crashes, the mini player's play button is the fallback
+      p.then(function () { if (a === audio2) state.song2Rejected = false; },
+             function () { if (a === audio2) state.song2Rejected = true; });
+    }
   }
 
   function dockCassette() {
@@ -398,17 +560,17 @@
   // ---------- Mini player controls ----------
 
   els.toggle.addEventListener('click', function () {
-    if (audio.paused || audio.error) {
+    if (active.paused || active.error) {
       startPlayback();
     } else {
-      audio.pause();
+      active.pause();
     }
   });
 
   function seekFromInput() {
-    var d = audio.duration;
+    var d = active.duration;
     if (!isFinite(d) || d <= 0) return;
-    audio.currentTime = (parseFloat(els.seek.value) / 1000) * d;
+    active.currentTime = (parseFloat(els.seek.value) / 1000) * d;
   }
 
   els.seek.addEventListener('input', seekFromInput);
@@ -488,15 +650,18 @@
     placeCaption();
   }
 
-  function renderStickers(t) {
+  function renderStickers(t, settle) {
     for (var k = 0; k < stickers.length; k++) {
       var st = stickers[k];
       var ph = Logic.stickerPhase(k, cues, t, reduced);
       var animating = ph.phase === 'landing' || ph.phase === 'moving';
       var key = animating ? ph.phase + ph.u.toFixed(4) : ph.phase;
+      var settling = k === stickers.length - 1 && settle > 0; // photo 13 has no slot: it tucks away as the board settles
+      if (settling) key += 's' + settle.toFixed(4);
       if (key === st.key) continue; // settled stickers are not touched again
       st.key = key;
       var pose = Logic.poseAt(k, ph, layout, st.size);
+      if (settling) pose = Logic.settlePose(pose, layout, settle);
       var s = st.el.style;
       s.visibility = pose.visible ? 'visible' : 'hidden';
       s.opacity = String(pose.o);
@@ -555,7 +720,7 @@
     }
   }
 
-  function renderCaption(t) {
+  function renderCaption(t, tr) {
     var idx = Logic.activeIndex(cues, t);
     if (idx !== cap.index) buildCaption(idx);
 
@@ -566,6 +731,7 @@
       setWritten(Logic.lettersWritten(sched, dt, reduced));
       setPop(Logic.popProgress(sched, dt, reduced));
       op = Logic.captionOpacity(dt, Logic.slotLength(cues, idx), reduced);
+      if (idx === photos.length - 1) op *= tr.captionOpacity; // the sign-off stays until the transition fades it
     }
     if (op !== cap.opacity) {
       cap.opacity = op;
@@ -573,39 +739,269 @@
     }
   }
 
-  function renderCollage(t) {
-    renderStickers(t);
-    renderCaption(t);
+  function renderCollage(t, tr) {
+    renderStickers(t, tr.settle);
+    renderCaption(t, tr);
   }
 
   applyLayout();
   window.addEventListener('resize', applyLayout);
 
-  // ---------- render(t): pure function of song 1 time ----------
-  // Phase 2: the mini player's progress plus the collage (stickers and captions).
-  // The transition and the letter come later.
+  // ---------- Transition, envelope and letter (Phase 3) ----------
 
-  function render(t) {
-    var d = audio.duration;
+  var FADE_MS = 1500;        // song 1 fade-out after the envelope tap
+  var PAPER_RISE = 170;      // px the folded paper rises out of the envelope (its bottom stays behind the pocket's V)
+  var SLIDE_TRAVEL = 0.6;    // envelope slide-in starts this share of the board height below its place
+
+  function songDuration() {
+    return Logic.effectiveDuration(audio.duration, cues, SITE.transition.fromEnd);
+  }
+
+  // The collage clock. Before the tap it is song 1's time. If song 1 has ended it is at least D,
+  // which reveals the envelope even if a cue was missed. After the tap the board is parked at D.
+  function boardTime() {
+    var D = songDuration();
+    if (state.tapped) return D;
+    var ct = audio.currentTime;
+    return audio.ended ? Math.max(ct, D) : ct;
+  }
+
+  // ----- Song 1 volume: a pure function of t until the tap, then a short fade driven by the frame loop -----
+
+  var vol = { last: -1, fade: null };
+
+  function setSong1Volume(v) {
+    if (v === vol.last) return;
+    vol.last = v;
+    audio.volume = v; // iPhone ignores this (the volume is read-only there), which is expected
+  }
+
+  function stepSong1Fade(now) {
+    var f = vol.fade;
+    if (!f) return;
+    var u = Math.min(1, Math.max(0, (now - f.start) / FADE_MS));
+    audio.volume = f.from * 0.5 * (1 + Math.cos(Math.PI * u));
+    if (u >= 1) {
+      audio.pause();
+      vol.fade = null;
+    }
+  }
+
+  // ----- Envelope (before the tap) -----
+
+  var envView = { key: '', tappable: false };
+
+  function renderEnvelope(e) {
+    var key = (e.visible ? 1 : 0) + ':' + e.opacity.toFixed(3) + ':' + e.offset.toFixed(3);
+    if (key !== envView.key) {
+      envView.key = key;
+      var s = els.envSlide.style;
+      s.visibility = e.visible ? 'visible' : 'hidden';
+      s.opacity = String(e.opacity);
+      s.transform = 'translateY(' + (e.offset * layout.h * SLIDE_TRAVEL).toFixed(1) + 'px)';
+    }
+    var tappable = e.tappable && !state.tapped;
+    if (tappable !== envView.tappable) {
+      envView.tappable = tappable;
+      els.envBtn.disabled = !tappable;
+      els.envSlide.classList.toggle('is-tappable', tappable);
+    }
+  }
+
+  // ----- Letter content, from data.js -----
+
+  SITE.letter.paragraphs.forEach(function (text) {
+    var para = document.createElement('p');
+    para.textContent = text;
+    els.letterText.appendChild(para);
+  });
+  els.letterSign.textContent = SITE.letter.signature;
+
+  // The preview: the first paragraph, laid out in full with unwritten letters transparent (no reflow),
+  // written by the same schedule as the captions. The box is 4 lines tall and fades out at the bottom.
+  var preview = {
+    sched: Logic.writeSchedule(SITE.letter.paragraphs[0] || '', false),
+    spans: [], pops: [], count: 0, popKey: '', opacity: -1
+  };
+
+  (function buildPreview() {
+    var frag = document.createDocumentFragment();
+    for (var i = 0; i < preview.sched.chars.length; i++) {
+      var span = document.createElement('span');
+      span.textContent = preview.sched.chars[i];
+      if (preview.sched.pop[i]) { span.className = 'ch-pop'; preview.pops.push(span); }
+      else { span.className = 'ch'; preview.spans.push(span); }
+      frag.appendChild(span);
+    }
+    els.envPreview.appendChild(frag);
+  })();
+
+  function setPreviewWritten(n) {
+    var i;
+    if (n === preview.count) return;
+    if (n > preview.count) for (i = preview.count; i < n; i++) preview.spans[i].classList.add('on');
+    else for (i = n; i < preview.count; i++) preview.spans[i].classList.remove('on');
+    preview.count = n;
+  }
+
+  function setPreviewPop(p) {
+    var key = p.toFixed(3);
+    if (key === preview.popKey) return;
+    preview.popKey = key;
+    var pose = Logic.popPose(p);
+    for (var i = 0; i < preview.pops.length; i++) {
+      preview.pops[i].style.opacity = String(pose.opacity);
+      preview.pops[i].style.transform = 'scale(' + pose.scale.toFixed(3) + ')';
+    }
+  }
+
+  // ----- Letter clock: song 2's time -----
+  // Follows song 2 (pause freezes it, seeking moves it). If song 2 cannot play (missing file or blocked),
+  // it runs on the frame loop instead, so the letter still opens. If song 2 starts later, the clock
+  // continues from where it was instead of jumping back.
+
+  var lc = { t: 0, last: 0, offset: 0 };
+
+  function letterTime(now) {
+    var dt = Math.min(0.25, Math.max(0, (now - lc.last) / 1000));
+    lc.last = now;
+    if (!audio2.error && !state.song2Rejected) {
+      lc.t = Math.max(0, audio2.currentTime + lc.offset);
+    } else {
+      lc.t += dt;
+      lc.offset = lc.t - audio2.currentTime;
+    }
+    return lc.t;
+  }
+
+  var letterView = { key: '', readOp: -1 };
+
+  function renderLetter(T) {
+    var s = Logic.letterState(T, reduced);
+
+    var key = s.flap.toFixed(4) + ':' + s.rise.toFixed(4);
+    if (key !== letterView.key) {
+      letterView.key = key;
+      els.envClosed.style.transform = 'scaleY(' + Math.max(0, 1 - 2 * s.flap).toFixed(4) + ')';
+      els.envOpen.style.transform = 'scaleY(' + Math.max(0, 2 * s.flap - 1).toFixed(4) + ')';
+      els.envPaper.style.transform = 'translateY(' + (-PAPER_RISE * s.rise).toFixed(2) + 'px)';
+    }
+
+    setPreviewWritten(Logic.lettersWritten(preview.sched, s.writeDt, reduced));
+    setPreviewPop(Logic.popProgress(preview.sched, s.writeDt, reduced));
+    if (s.previewOpacity !== preview.opacity) {
+      preview.opacity = s.previewOpacity;
+      els.envPreview.style.opacity = String(s.previewOpacity);
+    }
+
+    if (s.readMore !== letterView.readOp) {
+      letterView.readOp = s.readMore;
+      els.readMore.style.opacity = String(s.readMore);
+      els.readMore.disabled = s.readMore < 0.5;
+    }
+  }
+
+  // ----- Envelope tap: everything starts inside the click handler -----
+
+  els.envBtn.addEventListener('click', function () {
+    if (state.tapped || !envView.tappable) return;
+    state.tapped = true;
+
+    active = audio2;
+    startPlayback(); // song 2, inside the click so the browser allows sound
+
+    vol.fade = { from: audio.volume, start: performance.now() }; // song 1 fades out over FADE_MS, then pauses
+    lc.t = 0;
+    lc.offset = 0;
+    lc.last = performance.now();
+
+    $('mini-title').textContent = song2.title;
+    $('mini-artist').textContent = song2.artist;
+    els.envBtn.disabled = true;
+  });
+
+  // ----- Read more: the panel grows out of the preview paper and shrinks back into it -----
+
+  var reading = false;
+
+  function setPanelPose(fromPaper) {
+    var st = els.panel.style;
+    if (!fromPaper) {
+      st.removeProperty('--fx');
+      st.removeProperty('--fy');
+      st.removeProperty('--fs');
+      return;
+    }
+    var sc = els.scene.getBoundingClientRect(); // the panel is centred in the scene
+    var pr = els.envPaper.getBoundingClientRect();
+    st.setProperty('--fs', (pr.width / els.panel.offsetWidth).toFixed(4));
+    st.setProperty('--fx', ((pr.left + pr.width / 2) - (sc.left + sc.width / 2)).toFixed(1) + 'px');
+    st.setProperty('--fy', ((pr.top + pr.height / 2) - (sc.top + sc.height / 2)).toFixed(1) + 'px');
+  }
+
+  function openLetter() {
+    if (reading) return;
+    reading = true;
+    var p = els.panel;
+    if (!reduced) {
+      p.style.transition = 'none';
+      setPanelPose(true);
+      void p.offsetWidth;          // commit the start pose before the transition runs
+      p.style.transition = '';
+    }
+    els.letterBody.scrollTop = 0;
+    p.removeAttribute('inert');
+    p.classList.add('is-open');
+    setPanelPose(false);
+    els.envWrap.classList.add('is-reading');
+    els.panelClose.focus({ preventScroll: true });
+  }
+
+  function closeLetter() {
+    if (!reading) return;
+    reading = false;
+    var p = els.panel;
+    p.setAttribute('inert', '');
+    if (!reduced) setPanelPose(true);
+    p.classList.remove('is-open');
+    els.envWrap.classList.remove('is-reading');
+    els.readMore.focus({ preventScroll: true });
+  }
+
+  els.readMore.addEventListener('click', openLetter);
+  els.panelClose.addEventListener('click', closeLetter);
+  els.replay.addEventListener('click', function () { location.reload(); });
+
+  // ---------- render: song time -> screen ----------
+  // uiT is the active song's time (mini player). boardT is the collage clock: a pure function of song 1's
+  // time before the tap, parked at D after it. The transition stage logic lives in HSLogic.
+
+  function render(uiT, boardT) {
+    var d = active.duration;
     var known = isFinite(d) && d > 0;
-    var p = known ? Math.min(1, Math.max(0, t / d)) : 0;
+    var p = known ? Math.min(1, Math.max(0, uiT / d)) : 0;
 
     els.seekFill.style.transform = 'scaleX(' + p + ')';
     if (!state.dragging) els.seek.value = String(p * 1000);
 
-    var text = fmt(t) + ' / ' + (known ? fmt(d) : '--:--');
+    var text = fmt(uiT) + ' / ' + (known ? fmt(d) : '--:--');
     if (text !== state.lastTimeText) {
       state.lastTimeText = text;
       els.time.textContent = text;
       els.seek.setAttribute('aria-valuetext', text);
     }
 
-    renderCollage(t);
+    var tr = Logic.transitionState(boardT, songDuration(), reduced, SITE.transition.fromEnd);
+    renderCollage(boardT, tr);
+    renderEnvelope(tr.envelope);
   }
+
+  // Backup: when song 1 ends, show the envelope straight away
+  audio.addEventListener('ended', function () { render(active.currentTime, boardTime()); });
 
   // Reels and the play/pause icon follow the real audio state
   function syncPlayState() {
-    var playing = !audio.paused && !audio.error;
+    var playing = !active.paused && !active.error;
     if (playing === state.lastPlaying) return;
     state.lastPlaying = playing;
     document.body.classList.toggle('is-playing', playing);
@@ -614,10 +1010,17 @@
 
   // ---------- The single clock ----------
 
-  function tick() {
+  function tick(now) {
     if (!state.ready && performance.now() - state.loadStart > LOAD_DEADLINE_MS) enablePlay();
     syncPlayState();
-    render(audio.currentTime);
+    var bt = boardTime();
+    if (state.tapped) {
+      stepSong1Fade(now);
+      renderLetter(letterTime(now));
+    } else {
+      setSong1Volume(Logic.volumeAt(bt, songDuration()));
+    }
+    render(active.currentTime, bt);
     requestAnimationFrame(tick);
   }
 

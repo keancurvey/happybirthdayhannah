@@ -106,7 +106,7 @@ body::before {
 
 /* The cassette stays centred, reels spinning, for --dock-wait after PLAY, then slides down and
    shrinks into the mini player (--dx, --dy, --s set by script.js). */
-:root { --dock-wait: 5s; }
+:root { --dock-wait: 7s; }
 
 .cassette.is-docking {
   transform: translate(var(--dx, 0px), var(--dy, 0px)) scale(var(--s, 0.1));
@@ -427,4 +427,268 @@ body::before {
     transition: opacity 0.3s ease var(--dock-wait);
   }
   .mini-player.is-visible { transition: opacity 0.3s ease calc(var(--dock-wait) + 0.3s); }
+}
+
+/* ---------- Envelope and letter (Phase 3) ---------- */
+
+/* Same box as the board: the stage minus the mini player. Above the board, below the mini player. */
+.letter-scene {
+  --player-h: 104px;
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: var(--player-h);
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+/* script.js slides this in (transform and opacity) from the song time */
+.env-slide {
+  visibility: hidden;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+/* The padding leaves room for the open flap and the risen paper above the envelope,
+   and for the Read more button below it. The sealed envelope sits at the centre. */
+.env-wrap {
+  position: relative;
+  width: 520px;
+  padding: 110px 0;
+  transition: opacity 0.35s ease;
+}
+
+.env-wrap.is-reading { opacity: 0.25; }
+
+.env-stage {
+  position: relative;
+  width: 520px;
+  height: 340px;
+  filter: drop-shadow(0 10px 14px rgba(90, 58, 42, 0.3));
+}
+
+/* Gentle pulse once the envelope can be tapped */
+.env-slide.is-tappable .env-stage { animation: env-pulse 2.4s ease-in-out infinite; }
+
+@keyframes env-pulse {
+  50% { transform: scale(1.025); }
+}
+
+.env-layer {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  display: block;
+  pointer-events: none;
+}
+
+.env-back { top: 0; height: 340px; }
+.env-back rect { fill: var(--pink); stroke: var(--brown); stroke-width: 4; }
+
+/* The open flap sits above the envelope, behind the paper. It grows from the top edge (scaleY). */
+.env-flap-open {
+  top: -200px;
+  height: 200px;
+  transform-origin: 50% 100%;
+  transform: scaleY(0);
+}
+
+.env-flap-open polygon { fill: var(--pink); stroke: var(--brown); stroke-width: 4; stroke-linejoin: round; }
+
+.env-front { top: 0; height: 340px; }
+.pocket { fill: var(--paper-dark); stroke: var(--brown); stroke-width: 4; stroke-linejoin: round; }
+.pocket-fold { fill: none; stroke: var(--brown); stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; opacity: 0.7; }
+
+/* The closed flap shrinks to the top edge as the open one grows (the flip) */
+.env-flap { top: 0; height: 240px; transform-origin: 50% 0; }
+.flap { fill: var(--pink); stroke: var(--brown); stroke-width: 4; stroke-linejoin: round; }
+.seal-body  { fill: var(--cherry); stroke: var(--brown); stroke-width: 3; }
+.seal-ring  { fill: none; stroke: var(--paper); stroke-width: 2; opacity: 0.35; }
+.seal-heart { fill: var(--paper); opacity: 0.85; }
+
+/* The folded paper: starts tucked inside the envelope, script.js raises it (translateY) */
+.env-paper {
+  position: absolute;
+  left: 40px;
+  top: 20px;
+  width: 440px;
+  height: 316px;
+  padding: 26px 30px 0;
+  overflow: hidden;
+  background: var(--paper);
+  border: 3px solid var(--brown);
+  border-radius: 4px;
+  will-change: transform;
+}
+
+/* fold crease */
+.env-paper::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 62%;
+  height: 18px;
+  background: linear-gradient(to bottom, rgba(90, 58, 42, 0), rgba(90, 58, 42, 0.09) 50%, rgba(90, 58, 42, 0));
+}
+
+/* Preview: the first paragraph, 4 lines tall, fading out at the bottom */
+.env-preview {
+  height: calc(1.3em * 4);
+  margin: 0;
+  overflow: hidden;
+  font-family: var(--font-hand);
+  font-weight: 600;
+  font-size: 32px;
+  line-height: 1.3;
+  color: var(--brown);
+  -webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent);
+  mask-image: linear-gradient(to bottom, #000 55%, transparent);
+}
+
+/* The whole envelope is the tap target, live only once it is tappable */
+.env-btn {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+  cursor: default;
+  pointer-events: none;
+}
+
+.env-btn:not(:disabled) { cursor: pointer; pointer-events: auto; }
+.env-btn:focus-visible { outline-offset: 8px; }
+
+.read-more {
+  position: absolute;
+  left: 50%;
+  bottom: 30px;
+  padding: 8px 28px;
+  font-family: var(--font-ui);
+  font-size: 24px;
+  letter-spacing: 0.08em;
+  color: var(--paper);
+  background: var(--cherry);
+  border: 0;
+  border-radius: 12px;
+  box-shadow: 0 5px 0 var(--brown), 0 10px 16px rgba(90, 58, 42, 0.25);
+  transform: translateX(-50%);
+  opacity: 0;
+  cursor: pointer;
+  pointer-events: none;
+}
+
+.read-more:not(:disabled) { pointer-events: auto; }
+
+.read-more:active:not(:disabled) {
+  transform: translateX(-50%) translateY(4px);
+  box-shadow: 0 1px 0 var(--brown), 0 4px 8px rgba(90, 58, 42, 0.25);
+}
+
+/* Letter panel: grows out of the paper. --fx, --fy and --fs are set by script.js (the paper's pose). */
+.letter-panel {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 640px;
+  max-width: calc(100% - 32px);
+  max-height: calc(100% - 32px);
+  display: flex;
+  flex-direction: column;
+  background: var(--paper);
+  border: 3px solid var(--brown);
+  border-radius: 10px;
+  box-shadow: 0 6px 0 rgba(90, 58, 42, 0.2), 0 18px 36px rgba(90, 58, 42, 0.28);
+  transform: translate(calc(-50% + var(--fx, 0px)), calc(-50% + var(--fy, 0px))) scale(var(--fs, 1));
+  transform-origin: 50% 50%;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: transform 0.55s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.35s ease, visibility 0s linear 0.55s;
+}
+
+.letter-panel.is-open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition: transform 0.55s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.35s ease, visibility 0s;
+}
+
+.letter-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 1;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  color: var(--paper);
+  background: var(--cherry);
+  border: 0;
+  border-radius: 50%;
+  box-shadow: 0 3px 0 var(--brown);
+  cursor: pointer;
+}
+
+.letter-close:active { transform: translateY(2px); }
+.letter-close svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; }
+
+.letter-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 52px 56px 36px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.letter-text p {
+  margin: 0 0 1em;
+  font-family: var(--font-hand);
+  font-weight: 600;
+  font-size: 30px;
+  line-height: 1.35;
+}
+
+.letter-sign {
+  margin: 12px 0 0;
+  font-family: var(--font-hand);
+  font-weight: 600;
+  font-size: 46px;
+  line-height: 1;
+  text-align: right;
+  color: var(--cherry);
+}
+
+.replay {
+  display: block;
+  margin: 44px auto 0;
+  padding: 6px 4px;
+  font-family: var(--font-ui);
+  font-size: 14px;
+  color: var(--brown);
+  background: none;
+  border: 0;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  opacity: 0.75;
+  cursor: pointer;
+}
+
+.replay:hover { opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .env-slide.is-tappable .env-stage { animation: none; }
+  .env-wrap { transition: none; }
+  .letter-panel { transition: opacity 0.2s ease, visibility 0s linear 0.2s; }
+  .letter-panel.is-open { transition: opacity 0.2s ease, visibility 0s; }
 }
