@@ -13,7 +13,7 @@ window.SITE = {
     { file: "images/04.png", title: "Quirky mode", cue: 64,
       caption: "One of her quirks is sipping ketchup straight from the packet. Yes, we both do it. No, we will not be explaining ourselves." },
     { file: "images/05.png", title: "Her heart", cue: 82,
-      caption: "I find it so endearing how she gives everyone a chance no matter what. How big her hearts is, she makes people feel belong with her presence" },
+      caption: "I find it so endearing how she gives everyone a chance no matter what. How big her heart is, How she makes people feel belong with her presence." },
     { file: "images/06.png", title: "School days", cue: 100,
       caption: "Through every year, she carried more heart than she ever gave herself credit for. I’m so proud of her." },
     { file: "images/07.png", title: "What lights her up", cue: 118,

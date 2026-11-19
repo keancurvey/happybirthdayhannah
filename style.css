@@ -106,7 +106,7 @@ body::before {
 
 /* The cassette stays centred, reels spinning, for --dock-wait after PLAY, then slides down and
    shrinks into the mini player (--dx, --dy, --s set by script.js). */
-:root { --dock-wait: 7s; }
+:root { --dock-wait: 6.5s; }
 
 .cassette.is-docking {
   transform: translate(var(--dx, 0px), var(--dy, 0px)) scale(var(--s, 0.1));
@@ -691,4 +691,135 @@ body::before {
   .env-wrap { transition: none; }
   .letter-panel { transition: opacity 0.2s ease, visibility 0s linear 0.2s; }
   .letter-panel.is-open { transition: opacity 0.2s ease, visibility 0s; }
+}
+
+/* ============================================================
+   Phase 4: responsive
+   Everything below sits inside media queries and comes after the desktop rules,
+   so the desktop layout at 1440x900 is untouched. Tablet first, then phone on top of it.
+   The collage itself (sticker above caption, thumbnail strip) is laid out by script.js
+   from the board's size, see computeStackedLayout.
+   ============================================================ */
+
+/* ---------- Tablet and down (1024px) ---------- */
+
+@media (max-width: 1024px) {
+  /* The page never scrolls: everything is fixed or one viewport tall */
+  html, body { overflow: hidden; }
+
+  /* Notches and home bars: the board and the letter scene stay inside the safe area */
+  .board, .letter-scene {
+    --player-h: calc(104px + env(safe-area-inset-bottom));
+    top: env(safe-area-inset-top);
+    left: env(safe-area-inset-left);
+    right: env(safe-area-inset-right);
+  }
+
+  .mini-player { bottom: calc(24px + env(safe-area-inset-bottom)); }
+
+  /* 44px tap targets */
+  .mini-toggle { flex: 0 0 44px; width: 44px; height: 44px; }
+
+  .seek { height: 44px; }
+  .seek-track { top: 19px; left: 10px; right: 10px; }
+  .seek-input::-webkit-slider-runnable-track { height: 44px; }
+  .seek-input::-moz-range-track { height: 44px; }
+  .seek-input::-webkit-slider-thumb { width: 20px; height: 20px; margin-top: 12px; }
+  .seek-input::-moz-range-thumb { width: 20px; height: 20px; }
+
+  .letter-close { width: 44px; height: 44px; }
+  .replay { min-height: 44px; padding: 12px 16px; }
+
+  /* Envelope scene: script.js sets --env-s (1 when it fits, less when it does not). The envelope is scaled
+     as a whole and the group is shifted so its visible extent is centred. Read more is not scaled, so it
+     keeps its 44px target, and sits under the scaled envelope. */
+  .letter-scene { place-content: center; }
+  .env-wrap { top: calc(var(--env-s, 1) * 100px - 32px); }
+  .env-stage { transform: scale(var(--env-s, 1)); }
+  .read-more {
+    bottom: auto;
+    top: calc(50% + var(--env-s, 1) * 170px + 20px);
+    min-height: 44px;
+  }
+}
+
+/* The pulse keyframes carry the scale too, otherwise the animation would reset it to 1.
+   Not under reduced motion: the rule in Phase 3 turns the pulse off there. */
+@media (max-width: 1024px) and (prefers-reduced-motion: no-preference) {
+  @keyframes env-pulse-scaled {
+    50% { transform: scale(calc(var(--env-s, 1) * 1.025)); }
+  }
+
+  .env-slide.is-tappable .env-stage { animation-name: env-pulse-scaled; }
+}
+
+/* ---------- Phone (640px) ---------- */
+
+@media (max-width: 640px) {
+  .cassette-screen { gap: 20px; }
+  .cassette { width: 86vw; }
+
+  .play-key {
+    min-height: 44px;
+    gap: 12px;
+    padding: 12px 34px 12px 28px;
+    font-size: 32px;
+  }
+
+  .play-icon { width: 26px; height: 26px; }
+  .load-status { font-size: 18px; }
+
+  /* Mini player: full width at the bottom, two rows. Row 1: cassette, title, play/pause.
+     Row 2: progress bar and time. 3px border + 6px padding + 44px + 44px + 6px padding = 103px,
+     plus the home bar inset. The board and the letter scene end 8px above it. */
+  .board, .letter-scene { --player-h: calc(111px + env(safe-area-inset-bottom)); }
+
+  .mini-player {
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: auto;
+    max-width: none;
+    height: auto;
+    display: grid;
+    grid-template-columns: 52px minmax(0, 1fr) 88px;
+    grid-template-rows: 44px 44px;
+    grid-template-areas:
+      "icon meta toggle"
+      "seek seek time";
+    gap: 0 12px;   /* the base rule's gap would also put 14px between the two rows */
+    align-items: center;
+    padding:
+      6px
+      calc(16px + env(safe-area-inset-right))
+      calc(6px + env(safe-area-inset-bottom))
+      calc(16px + env(safe-area-inset-left));
+    border-width: 3px 0 0;
+    border-radius: 22px 22px 0 0;
+    box-shadow: 0 -4px 18px rgba(90, 58, 42, 0.16);
+    transform: none;
+  }
+
+  .mini-cassette { grid-area: icon; }
+  .mini-meta { grid-area: meta; }
+  .mini-title { font-size: 15px; }
+  .mini-toggle { grid-area: toggle; justify-self: end; }
+  .seek { grid-area: seek; }
+  .mini-time { grid-area: time; min-width: 0; }
+
+  /* Letter: the panel fills the scene (everything above the mini player) and scrolls inside,
+     so the signature and the replay link are reachable by scrolling */
+  .letter-panel {
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    max-height: none;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .letter-body { padding: 64px 22px 32px; }
+  .letter-text p { font-size: 26px; }
+  .letter-sign { font-size: 40px; }
+  .replay { margin-top: 32px; font-size: 15px; }
 }

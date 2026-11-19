@@ -246,6 +246,70 @@
     };
   }
 
+  // ----- Phase 4: stacked layout for narrow screens -----
+  // Used when the board is STACK.maxW px wide or less (phones, and tablets in portrait). The sticker sits
+  // above the caption and the pile is one strip of 12 thumbnails along the top. It returns the same shape
+  // as computeLayout, so the rest of the engine does not care which one it got. computeLayout is not touched.
+
+  var STACK = {
+    maxW: 820,
+    noteLines: 7,     // longest caption is 5 lines at 360 px wide, so there are 2 spare lines
+    noteMaxW: 560,
+    fontMin: 17,
+    tape: 12          // the tape piece sticks out above the sticker
+  };
+
+  function isStacked(W) { return W <= STACK.maxW; }
+
+  function computeStackedLayout(W, H, vh) {
+    var pad = clamp(W * 0.04, 12, 32);
+    var slot = clamp(W * 0.11, 34, 56);
+    var stripH = 8 + slot * 1.2;                // top gap + a slot box turned by up to 10 deg
+    var gap = 10;
+    var F = { x: pad, y: stripH + gap, w: W - 2 * pad, h: H - stripH - 2 * gap };
+
+    var padY = CFG.notePadY;
+    var fsW = clamp(W * 0.058, 19, 30);
+    var minSticker = clamp(F.h * 0.4, 130, 400);   // short screens give up some caption size before the sticker shrinks
+    var fsH = (F.h - minSticker - gap - 2 * padY) / (STACK.noteLines * CFG.lineHeight);
+    var fs = Math.max(STACK.fontMin, Math.min(fsW, fsH));
+    var noteW = Math.min(STACK.noteMaxW, F.w);
+    var noteH = STACK.noteLines * CFG.lineHeight * fs + 2 * padY;
+
+    var tilt = (F.w - 8) / 2 * Math.sin(3 * Math.PI / 180);   // a full-width sticker turned by 3 deg grows this much
+    var avail = F.h - noteH - gap - STACK.tape - tilt;        // room above the note, below the tape allowance
+    var stickerH = Math.max(60, Math.min(avail, 0.6 * vh));
+    var cx = W / 2;
+    var stickerCy = F.y + STACK.tape + avail / 2;
+    var noteCy = F.y + F.h - noteH / 2;
+
+    var slots = [];
+    var span = W - 2 * pad - slot;               // thumbnails overlap when the strip is narrower than 12 slots
+    var slotY = 8 + slot * 0.6;
+    for (var k = 0; k < 12; k++) {
+      slots.push({ x: pad + slot / 2 + span * k / 11, y: slotY, r: SLOT_ROT[k] });
+    }
+
+    return {
+      w: W, h: H,
+      slotSize: slot,
+      margin: stripH,
+      focus: F,
+      stickerBox: { w: F.w - 8, h: stickerH },
+      stickerCenters: { left: { x: cx, y: stickerCy }, right: { x: cx, y: stickerCy } },
+      note: { w: noteW, h: noteH, fs: fs },
+      noteCenters: { left: { x: cx, y: noteCy }, right: { x: cx, y: noteCy } },
+      slots: slots
+    };
+  }
+
+  // Scale for the 520 px wide envelope scene so that it fits a W x H box. 1 whenever it already fits
+  // (desktop, most tablets). The envelope, its open flap and the Read more button are 540 px of height
+  // at scale 1 plus 65 px that do not scale, and 2 x 20 px are kept free at the edges.
+  function envScale(W, H) {
+    return clamp(Math.min((W - 24) / 520, (H - 105) / 540), 0.3, 1);
+  }
+
   // ----- Phase 3: end-of-song transition -----
   // Pure functions of t (song 1 time, s) and D (song 1 duration, s). No DOM, no clock.
   // Seconds before the end:  24 photo 13's slot ends and the sign-off lingers
@@ -391,7 +455,11 @@
     poseAt: poseAt,
     transformString: transformString,
     noteTransform: noteTransform,
-    computeLayout: computeLayout
+    computeLayout: computeLayout,
+    STACK: STACK,
+    isStacked: isStacked,
+    computeStackedLayout: computeStackedLayout,
+    envScale: envScale
   };
 
   root.HSLogic = Logic;
@@ -406,6 +474,7 @@
   var Logic = window.HSLogic;
   var SITE = window.SITE;
   var LOAD_DEADLINE_MS = 8000;
+  var SEEK_STEP = 5;         // s, one arrow key press on the progress bar
 
   function $(id) { return document.getElementById(id); }
 
@@ -574,6 +643,18 @@
   }
 
   els.seek.addEventListener('input', seekFromInput);
+
+  // Arrow keys move by SEEK_STEP seconds. The native step is "any", which would move by a tiny fraction.
+  els.seek.addEventListener('keydown', function (e) {
+    var dir = 0;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowUp') dir = 1;
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') dir = -1;
+    var d = active.duration;
+    if (!dir || !isFinite(d) || d <= 0) return;
+    e.preventDefault();
+    active.currentTime = Math.min(d, Math.max(0, active.currentTime + dir * SEEK_STEP));
+  });
+
   els.seek.addEventListener('pointerdown', function () { state.dragging = true; });
   window.addEventListener('pointerup', function () { state.dragging = false; });
   window.addEventListener('pointercancel', function () { state.dragging = false; });
@@ -629,7 +710,10 @@
   // so the tape and the rotation centre sit on the image whatever its shape.
   function measure(st) {
     if (!layout) return;
-    var w = st.img.offsetWidth, h = st.img.offsetHeight;
+    setSize(st, st.img.offsetWidth, st.img.offsetHeight);
+  }
+
+  function setSize(st, w, h) {
     if (!w || !h) { w = layout.stickerBox.w; h = layout.stickerBox.h; } // image missing: keep the page alive
     st.el.style.width = w + 'px';
     st.el.style.height = h + 'px';
@@ -637,16 +721,23 @@
     st.key = '';
   }
 
+  // Not called from render(). It runs once at start and again from the frame loop after a resize.
+  // All the sizes are read first and written after, so it forces one layout, not one per sticker.
   function applyLayout() {
     var r = els.board.getBoundingClientRect();
-    layout = Logic.computeLayout(r.width, r.height, window.innerHeight);
+    var narrow = Logic.isStacked(r.width);       // phones and tablet portrait: sticker above the caption
+    layout = narrow
+      ? Logic.computeStackedLayout(r.width, r.height, window.innerHeight)
+      : Logic.computeLayout(r.width, r.height, window.innerHeight);
     var s = els.board.style;
     s.setProperty('--st-w', layout.stickerBox.w + 'px');
     s.setProperty('--st-h', layout.stickerBox.h + 'px');
     s.setProperty('--cap-w', layout.note.w + 'px');
     s.setProperty('--cap-h', layout.note.h + 'px');
     s.setProperty('--cap-fs', layout.note.fs + 'px');
-    stickers.forEach(measure);
+    els.scene.style.setProperty('--env-s', Logic.envScale(r.width, r.height).toFixed(4)); // used by style.css at 1024px and below
+    var sizes = stickers.map(function (st) { return [st.img.offsetWidth, st.img.offsetHeight]; });
+    stickers.forEach(function (st, i) { setSize(st, sizes[i][0], sizes[i][1]); });
     placeCaption();
   }
 
@@ -745,7 +836,10 @@
   }
 
   applyLayout();
-  window.addEventListener('resize', applyLayout);
+
+  // A resize only marks the layout dirty. The frame loop re-applies it once per frame at most.
+  var layoutDirty = false;
+  window.addEventListener('resize', function () { layoutDirty = true; });
 
   // ---------- Transition, envelope and letter (Phase 3) ----------
 
@@ -951,6 +1045,7 @@
     }
     els.letterBody.scrollTop = 0;
     p.removeAttribute('inert');
+    els.envSlide.setAttribute('inert', ''); // Tab and screen readers stay in the letter while it is open
     p.classList.add('is-open');
     setPanelPose(false);
     els.envWrap.classList.add('is-reading');
@@ -965,11 +1060,15 @@
     if (!reduced) setPanelPose(true);
     p.classList.remove('is-open');
     els.envWrap.classList.remove('is-reading');
+    els.envSlide.removeAttribute('inert');
     els.readMore.focus({ preventScroll: true });
   }
 
   els.readMore.addEventListener('click', openLetter);
   els.panelClose.addEventListener('click', closeLetter);
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && reading) closeLetter();
+  });
   els.replay.addEventListener('click', function () { location.reload(); });
 
   // ---------- render: song time -> screen ----------
@@ -1012,6 +1111,11 @@
 
   function tick(now) {
     if (!state.ready && performance.now() - state.loadStart > LOAD_DEADLINE_MS) enablePlay();
+    if (layoutDirty) {
+      layoutDirty = false;
+      applyLayout();
+      envView.key = ''; // the envelope's slide offset depends on the board height
+    }
     syncPlayState();
     var bt = boardTime();
     if (state.tapped) {

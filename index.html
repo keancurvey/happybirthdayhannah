@@ -2,8 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>hannahseventeen</title>
+  <link rel="icon" href="data:,">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -59,7 +60,7 @@
       </div>
 
       <div class="play-area" id="play-area">
-        <button type="button" class="play-key" id="play-btn" aria-label="Play" disabled>
+        <button type="button" class="play-key" id="play-btn" aria-label="Play" autocomplete="off" disabled>
           <svg class="play-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3 L21 12 L5 21 Z"/></svg>
           <span>PLAY</span>
         </button>
@@ -103,9 +104,9 @@
               <path class="seal-heart" d="M0 9 C-15 -2 -12 -14 -5 -14 C-2 -14 0 -11 0 -9 C0 -11 2 -14 5 -14 C12 -14 15 -2 0 9 Z"/>
             </g>
           </svg>
-          <button type="button" class="env-btn" id="envelope" aria-label="Open the letter" disabled></button>
+          <button type="button" class="env-btn" id="envelope" aria-label="Open the letter" autocomplete="off" disabled></button>
         </div>
-        <button type="button" class="read-more" id="read-more" aria-label="Read more of the letter" disabled>Read more</button>
+        <button type="button" class="read-more" id="read-more" aria-label="Read more of the letter" autocomplete="off" disabled>Read more</button>
       </div>
     </div>
 
@@ -144,7 +145,7 @@
 
     <div class="seek">
       <div class="seek-track"><div class="seek-fill" id="seek-fill"></div></div>
-      <input type="range" class="seek-input" id="mini-seek" min="0" max="1000" step="any" value="0" aria-label="Seek">
+      <input type="range" class="seek-input" id="mini-seek" min="0" max="1000" step="any" value="0" aria-label="Seek" autocomplete="off">
     </div>
 
     <span class="mini-time" id="mini-time">0:00 / --:--</span>
