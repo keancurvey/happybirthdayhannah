@@ -507,7 +507,8 @@ body::before {
 .flap { fill: var(--pink); stroke: var(--brown); stroke-width: 4; stroke-linejoin: round; }
 .seal-body  { fill: var(--cherry); stroke: var(--brown); stroke-width: 3; }
 .seal-ring  { fill: none; stroke: var(--paper); stroke-width: 2; opacity: 0.35; }
-.seal-heart { fill: var(--paper); opacity: 0.85; }
+.seal-clover { fill: var(--paper); opacity: 0.85; }
+.seal-stem { fill: none; stroke: var(--paper); stroke-width: 2.5; stroke-linecap: round; }
 
 /* The folded paper: starts tucked inside the envelope, script.js raises it (translateY) */
 .env-paper {

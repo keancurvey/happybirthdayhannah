@@ -1,7 +1,7 @@
 window.SITE = {
   songs: {
     main:   { src: "music/song1.mp3", title: "cherry flavoured love inside your heart", artist: "wave to earth" },
-    letter: { src: "music/song2.mp3", title: "song 2", artist: "" }
+    letter: { src: "music/song2.mp3", title: "The Only Exception (instrumental)", artist: "Paramore" }
   },
   photos: [
     { file: "images/01.png", title: "Born in Pili", cue: 10,
@@ -32,5 +32,17 @@ window.SITE = {
       caption: "One more year of you, and the world is better for it. Happy Birthday, Hannah Del Mundo 💗🎂" }
   ],
   transition: { fromEnd: 24 },
-  letter: { paragraphs: ["Your letter goes here."], signature: "Kean" }
+  letter: {
+    paragraphs: [
+      "Happy Birthday to you, Happy birthday to you, Maligayang, Maligayang Pagbati🎉🥳.Sa napakakyot, napakabait, napakabig na iz heart at nakimushi 😝 kong nakshie, today is your special day, Today was the day you were born into this world.I'm wishing you a day full of smiles, more blessings, more birthdays to come, good health and for your safety always.",
+      "We met around summer, it was a coincidence, I've said it a lot of times but the window of us meeting was slim but it still happened. Despite our different backgrounds, different passions, different locations and different personalities, our choices led us to that moment and I'm forever thankful for that. Although we haven't met in person, I know how genuine your words and care are, and honestly I'm still overwhelmed as always by how endearing you are my BFF.",
+      "Maraming maraming Salamat Kasi Marami ng beses na I feel like giving up and the burnout honestly gets to me. You were always there to lift me up, there were points that bringing those honest feelings with me helped lit a fire in me and your presence does so much to heal this old man 🙂.",
+      "Pasensya na talaga if sometimes harsh ako and I know my words hurt you. I'm very sorry for being rash, even if it's for the reason of it being for your own good. I honestly feel guilty and I want to deliver my thoughts better the next time around.",
+      "It hasn't been a year huh? It feels so long ago at this point. You know me better than anyone else at this point. My weakness and the ego I always try to keep in check, your belief in me makes it so that I want to rise up and be better and improve in ways that will help me navigate this world as I go.",
+      "Even if those hurtful experiences were the reason, you're even reading this to begin with. The path I took to get here, I wouldn't change a thing because despite all of that, those experiences led me to meeting you my best bff, nakshie, little sister from another Madir and lastly, a great person.",
+      "Years will pass, our lives would change, it's inevitable. Many things will undoubtedly change for better or for worse. But in spite of that, just know one thing will never change. It's that you will never be truly alone in this world as long as I'm here. As your number 1 fan, bestfriend, kuya, ally and Tay. I will support you no matter what and I will be here to see your dreams become a reality.",
+      "To more chikaz, yapping sessionz, at mga walang sawang kwentuhan at kulitan. Wag na wag mong kakalimutan na nadito lang me para sayo my bistprin. Thank you for being the wonderful person that you are. Laabyuuuuu nakshie 💓. Happy, Happy Birthday 🎂."
+    ],
+    signature: "Kean"
+  }
 };
