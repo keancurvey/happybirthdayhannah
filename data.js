@@ -44,5 +44,13 @@ window.SITE = {
       "To more chikaz, yapping sessionz, at mga walang sawang kwentuhan at kulitan. Wag na wag mong kakalimutan na nadito lang me para sayo my bistprin. Thank you for being the wonderful person that you are. Laabyuuuuu nakshie 💓. Happy, Happy Birthday 🎂."
     ],
     signature: "Kean"
+  },
+  // added in Phase 6 (the video line is used from Phase 7)
+  surprise: {
+    candles: 17,
+    video: "video/surprise.mp4",
+    button: "close this letter for a surprise",
+    hint: "tap each candle",
+    left: "{n} left"
   }
 };

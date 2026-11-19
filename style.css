@@ -7,6 +7,11 @@
   --cherry: #b3202f;       /* cherry red */
   --mustard: #d9a441;
   --brown: #5a3a2a;        /* text and borders */
+  /* added for the cake (Phase 6) */
+  --choc: #4a2a1d;         /* chocolate sponge */
+  --choc-dark: #2f1810;    /* ganache, shadows on the cake */
+  --choc-light: #6b4130;   /* highlights on the cake */
+  --flame: #f4b942;        /* candle flame core */
 
   --font-hand: "Caveat", cursive;
   --font-ui: "Special Elite", "Courier New", monospace;
@@ -823,4 +828,267 @@ body::before {
   .letter-text p { font-size: 26px; }
   .letter-sign { font-size: 40px; }
   .replay { margin-top: 32px; font-size: 15px; }
+}
+
+/* ============================================================
+   Phase 6: surprise button, scene change, chocolate cake
+   Event driven, nothing here is tied to the audio clock. script.js renderSurprise(state)
+   toggles .is-away, .is-in, .is-out and .is-done. Motion is transform and opacity only.
+   ============================================================ */
+
+/* ---------- Surprise button, at the end of the letter ---------- */
+
+.surprise-btn {
+  display: block;
+  min-height: 44px;
+  margin: 40px auto 0;
+  padding: 10px 28px;
+  font-family: var(--font-ui);
+  font-size: 20px;
+  line-height: 1.25;
+  letter-spacing: 0.04em;
+  text-align: center;
+  color: var(--paper);
+  background: var(--cherry);
+  border: 0;
+  border-radius: 12px;
+  box-shadow: 0 5px 0 var(--brown), 0 10px 16px rgba(90, 58, 42, 0.25);
+  cursor: pointer;
+}
+
+.surprise-btn:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 var(--brown), 0 4px 8px rgba(90, 58, 42, 0.25);
+}
+
+.surprise-btn:disabled { opacity: 0.6; cursor: default; }
+
+/* ---------- Scene change ---------- */
+
+/* The letter and envelope scene fades out (script.js also makes it inert) */
+.letter-scene.is-away {
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+
+/* Same box as the letter scene: the stage minus the mini player, so the player never covers the cake.
+   One layer above the letter scene, below the mini player. */
+.cake-scene {
+  --player-h: 104px;
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: var(--player-h);
+  z-index: 11;
+  display: grid;
+  place-content: center;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.cake-scene.is-in { visibility: visible; }
+
+@media (max-width: 1024px) {
+  .cake-scene {
+    --player-h: calc(104px + env(safe-area-inset-bottom));
+    top: env(safe-area-inset-top);
+    left: env(safe-area-inset-left);
+    right: env(safe-area-inset-right);
+  }
+}
+
+@media (max-width: 640px) {
+  .cake-scene { --player-h: calc(111px + env(safe-area-inset-bottom)); }
+}
+
+/* The cake, its hint and its counter rise in together */
+.cake-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  opacity: 0;
+  transform: translateY(56px);
+  will-change: transform, opacity;
+}
+
+.cake-scene.is-in .cake-stack {
+  opacity: 1;
+  transform: none;
+  transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.25, 1), opacity 0.8s ease;
+}
+
+/* ---------- Cake ---------- */
+
+/* 520 px on desktop, 92vw on a phone. The third value keeps the whole stack (cake, hint, counter)
+   above the mini player on short screens. The art is a 520 x 470 box and the candle buttons are
+   positioned in percent of it, so they stay on their candles at any width. */
+.cake {
+  position: relative;
+  width: max(260px, min(520px, 92vw, calc((100dvh - var(--player-h) - 130px) * 1.106)));
+  aspect-ratio: 520 / 470;
+}
+
+.cake-art {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+/* plate */
+.ck-shadow { fill: var(--brown); opacity: 0.16; }
+.ck-shadow-cake { opacity: 0.2; }
+.ck-plate { fill: var(--paper); stroke: var(--brown); stroke-width: 3; stroke-opacity: 0.5; }
+.ck-plate-ring { fill: none; stroke: var(--paper-dark); stroke-width: 4; }
+
+/* chocolate: dark sponge, darker ganache, lighter highlights */
+.ck-sponge  { fill: var(--choc); }
+.ck-fill    { fill: var(--choc-light); }
+.ck-ganache { fill: var(--choc-dark); }
+.ck-hi      { fill: var(--choc-light); opacity: 0.3; }
+.ck-hi-drip { opacity: 0.6; }
+.ck-shade   { fill: var(--choc-dark); opacity: 0.4; }
+.ck-rim     { fill: none; stroke: var(--choc-light); stroke-width: 3; opacity: 0.45; }
+.ck-gloss   { fill: none; stroke: var(--choc-light); stroke-width: 6; stroke-linecap: round; opacity: 0.65; }
+.ck-gloss-small { stroke-width: 4; opacity: 0.5; }
+
+/* pink frosting ruffle */
+.ck-pink-band { fill: var(--pink); }
+.ck-scallop { fill: var(--pink); }
+.ck-pink-edge { fill: none; stroke: var(--cherry); stroke-width: 1.5; stroke-opacity: 0.3; }
+.ck-pink-fold { fill: none; stroke: var(--cherry); stroke-width: 2; stroke-linecap: round; stroke-opacity: 0.2; }
+.ck-pink-top  { fill: none; stroke: var(--cherry); stroke-width: 1.5; stroke-opacity: 0.3; }
+.ck-pink-hi { fill: none; stroke: var(--paper); stroke-width: 2.5; stroke-linecap: round; opacity: 0.6; }
+
+/* candles */
+.cd-body { stroke: none; }
+.k-pink   { fill: var(--pink); }
+.k-paper  { fill: var(--paper); }
+.k-mustard { fill: var(--mustard); }
+.k-cherry { fill: var(--cherry); }
+.cd-shine { fill: var(--paper); opacity: 0.45; }
+.cd-wick  { stroke: var(--brown); stroke-width: 2.2; stroke-linecap: round; }
+
+.glow { fill: var(--flame); opacity: 0.16; }
+.fl-out { fill: var(--flame); }
+.fl-in  { fill: var(--paper); opacity: 0.85; }
+
+/* Lit: a gentle flicker, each flame on its own phase (--d is set per candle) */
+.flame {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: flame-flicker 1.2s ease-in-out infinite;
+  animation-delay: var(--d, 0s);
+}
+
+@keyframes flame-flicker {
+  0%, 100% { transform: scale(1, 1) rotate(0deg); opacity: 1; }
+  22% { transform: scale(0.93, 1.07) rotate(-3deg); opacity: 0.94; }
+  48% { transform: scale(1.05, 0.94) rotate(2deg); opacity: 1; }
+  74% { transform: scale(0.96, 1.05) rotate(3deg); opacity: 0.92; }
+}
+
+/* Blown: the flame shrinks and fades, a thin wisp of smoke rises and fades (about 1.2 s) */
+.cd.is-out .flame { animation: flame-out 0.5s ease-in forwards; }
+.cd.is-out .glow { opacity: 0; transition: opacity 0.4s ease; }
+
+@keyframes flame-out {
+  from { transform: scale(1, 1); opacity: 1; }
+  to   { transform: scale(0.1, 0.1); opacity: 0; }
+}
+
+.smoke {
+  fill: none;
+  stroke: var(--brown);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+
+.cd.is-out .smoke { animation: smoke-rise 1.2s ease-out forwards; }
+
+@keyframes smoke-rise {
+  0%   { opacity: 0; transform: translateY(0) scaleY(0.5); }
+  18%  { opacity: 0.7; }
+  100% { opacity: 0; transform: translateY(-24px) scaleY(1.1); }
+}
+
+/* The candle buttons: 44 x 44 px hit areas on top of the art, in DOM order so the rows closer to the
+   viewer sit on top. A blown candle is disabled but still takes the tap, so a second tap on it can never
+   land on a neighbour underneath. */
+.candle {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: 44px;
+  height: 44px;
+  margin: -22px 0 0 -22px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  pointer-events: auto;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.candle:hover:not(:disabled) { background: rgba(246, 236, 217, 0.14); }
+.candle:disabled { cursor: default; }
+
+/* Cream ring inside a brown one, so it shows on the dark ganache and on the cream page alike */
+.candle:focus-visible {
+  outline: 3px solid var(--paper);
+  outline-offset: 0;
+  box-shadow: 0 0 0 6px var(--brown);
+}
+
+/* Hint and counter under the cake. At "all out" they fade away and keep their space, so the cake does not jump. */
+.cake-hint, .cake-count {
+  margin: 0;
+  font-family: var(--font-ui);
+  text-align: center;
+  letter-spacing: 0.06em;
+}
+
+.cake-hint { font-size: 20px; opacity: 0.8; }
+.cake-count { min-height: 1.3em; font-size: 26px; line-height: 1.3; color: var(--cherry); }
+
+.cake-hint, .cake-count { transition: opacity 0.4s ease; }
+
+.cake-scene.is-done .cake-hint,
+.cake-scene.is-done .cake-count {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.4s ease, visibility 0s linear 0.4s;
+}
+
+/* ---------- Phone ---------- */
+
+@media (max-width: 640px) {
+  .surprise-btn { width: 100%; margin-top: 32px; font-size: 17px; }
+  .cake-hint { font-size: 18px; }
+  .cake-count { font-size: 24px; }
+}
+
+/* ---------- Reduced motion ---------- */
+/* Scenes swap with a plain opacity change, no rise. A blown candle just loses its flame:
+   no flicker, no shrink, no smoke. */
+
+@media (prefers-reduced-motion: reduce) {
+  .letter-scene.is-away { transition: opacity 0.3s ease; }
+  .cake-stack { transform: none; }
+  .cake-scene.is-in .cake-stack { transition: opacity 0.3s ease; }
+  .flame { animation: none; }
+  .cd.is-out .flame { animation: none; opacity: 0; }
+  .cd.is-out .glow { transition: none; }
+  .cd.is-out .smoke { animation: none; display: none; }
+  .surprise-btn:active:not(:disabled) { transform: none; }
 }

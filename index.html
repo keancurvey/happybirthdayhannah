@@ -123,10 +123,294 @@
       <div class="letter-body" id="letter-body">
         <div class="letter-text" id="letter-text"></div>
         <p class="letter-sign" id="letter-sign"></p>
+        <button type="button" class="surprise-btn" id="surprise-btn" aria-label="Close this letter for a surprise" autocomplete="off"></button>
         <button type="button" class="replay" id="replay" aria-label="Replay from the start">replay from the start</button>
       </div>
     </div>
   </div>
+
+  <section class="cake-scene" id="cake-scene" aria-label="Cake" inert>
+    <div class="cake-stack" id="cake-stack">
+      <div class="cake" role="group" aria-label="Chocolate cake with 17 candles">
+      <svg class="cake-art" viewBox="0 0 520 470" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+      <!-- plate and shadows -->
+      <ellipse class="ck-shadow" cx="270" cy="346" rx="256" ry="118"/>
+      <ellipse class="ck-plate" cx="260" cy="334" rx="256" ry="118"/>
+      <ellipse class="ck-plate-ring" cx="260" cy="332" rx="238" ry="107"/>
+      <ellipse class="ck-shadow ck-shadow-cake" cx="268" cy="338" rx="236" ry="110"/>
+      <!-- sponge: two layers with a lighter filling between them -->
+      <path class="ck-sponge" d="M30,200 A230,108 0 0 0 490,200 L490,254 A230,108 0 0 1 30,254 Z"/>
+      <path class="ck-fill" d="M30,254 A230,108 0 0 0 490,254 L490,270 A230,108 0 0 1 30,270 Z"/>
+      <path class="ck-sponge" d="M30,270 A230,108 0 0 0 490,270 L490,320 A230,108 0 0 1 30,320 Z"/>
+      <clipPath id="ck-side"><path d="M30,200 A230,108 0 0 0 490,200 L490,320 A230,108 0 0 1 30,320 Z"/></clipPath>
+      <ellipse class="ck-hi" cx="-6" cy="292" rx="74" ry="128" clip-path="url(#ck-side)"/>
+      <ellipse class="ck-shade" cx="548" cy="300" rx="158" ry="190" clip-path="url(#ck-side)"/>
+      <!-- ganache skirt and drips -->
+      <path class="ck-ganache" d="M30,200 A230,108 0 0 0 490,200 L490,214 A230,108 0 0 1 30,214 Z"/>
+      <path class="ck-ganache" d="M75.5,279.5 L75.5,301 A8.5,8.5 0 0 0 92.5,301 L92.5,279.5 Z"/>
+      <path class="ck-ganache" d="M130.5,302.1 L130.5,340.6 A9.5,9.5 0 0 0 149.5,340.6 L149.5,302.1 Z"/>
+      <path class="ck-ganache" d="M192,314.3 L192,328.3 A8,8 0 0 0 208,328.3 L208,314.3 Z"/>
+      <path class="ck-ganache" d="M251,318 L251,359 A11,11 0 0 0 273,359 L273,318 Z"/>
+      <path class="ck-ganache" d="M313.5,314 L313.5,333.5 A8.5,8.5 0 0 0 330.5,333.5 L330.5,314 Z"/>
+      <path class="ck-ganache" d="M370,302.1 L370,336.1 A10,10 0 0 0 390,336.1 L390,302.1 Z"/>
+      <path class="ck-ganache" d="M426,280.6 L426,296.6 A8,8 0 0 0 442,296.6 L442,280.6 Z"/>
+      <rect class="ck-hi ck-hi-drip" x="78.3" y="289.5" width="3" height="8.5" rx="1.5"/>
+      <rect class="ck-hi ck-hi-drip" x="133.8" y="312.1" width="3" height="25.5" rx="1.5"/>
+      <rect class="ck-hi ck-hi-drip" x="255" y="328" width="3" height="28" rx="1.5"/>
+      <rect class="ck-hi ck-hi-drip" x="316.3" y="324" width="3" height="6.5" rx="1.5"/>
+      <rect class="ck-hi ck-hi-drip" x="373.5" y="312.1" width="3" height="21" rx="1.5"/>
+      <!-- pink frosting ruffle at the base: a band with a scalloped lower edge and soft folds -->
+      <path class="ck-pink-band" d="M30,294 A230,108 0 0 0 490,294 L490,320 A230,108 0 0 1 30,320 Z"/>
+      <circle class="ck-scallop" cx="40" cy="350.5" r="13"/>
+      <circle class="ck-scallop" cx="62" cy="374" r="13"/>
+      <circle class="ck-scallop" cx="84" cy="388.5" r="13"/>
+      <circle class="ck-scallop" cx="106" cy="399.2" r="13"/>
+      <circle class="ck-scallop" cx="128" cy="407.4" r="13"/>
+      <circle class="ck-scallop" cx="150" cy="413.8" r="13"/>
+      <circle class="ck-scallop" cx="172" cy="418.8" r="13"/>
+      <circle class="ck-scallop" cx="194" cy="422.5" r="13"/>
+      <circle class="ck-scallop" cx="216" cy="425" r="13"/>
+      <circle class="ck-scallop" cx="238" cy="426.5" r="13"/>
+      <circle class="ck-scallop" cx="260" cy="427" r="13"/>
+      <circle class="ck-scallop" cx="282" cy="426.5" r="13"/>
+      <circle class="ck-scallop" cx="304" cy="425" r="13"/>
+      <circle class="ck-scallop" cx="326" cy="422.5" r="13"/>
+      <circle class="ck-scallop" cx="348" cy="418.8" r="13"/>
+      <circle class="ck-scallop" cx="370" cy="413.8" r="13"/>
+      <circle class="ck-scallop" cx="392" cy="407.4" r="13"/>
+      <circle class="ck-scallop" cx="414" cy="399.2" r="13"/>
+      <circle class="ck-scallop" cx="436" cy="388.5" r="13"/>
+      <circle class="ck-scallop" cx="458" cy="374" r="13"/>
+      <circle class="ck-scallop" cx="480" cy="350.5" r="13"/>
+      <path class="ck-pink-edge" d="M27,350.5 A13,13 0 0 0 53,350.5"/>
+      <path class="ck-pink-edge" d="M49,374 A13,13 0 0 0 75,374"/>
+      <path class="ck-pink-edge" d="M71,388.5 A13,13 0 0 0 97,388.5"/>
+      <path class="ck-pink-edge" d="M93,399.2 A13,13 0 0 0 119,399.2"/>
+      <path class="ck-pink-edge" d="M115,407.4 A13,13 0 0 0 141,407.4"/>
+      <path class="ck-pink-edge" d="M137,413.8 A13,13 0 0 0 163,413.8"/>
+      <path class="ck-pink-edge" d="M159,418.8 A13,13 0 0 0 185,418.8"/>
+      <path class="ck-pink-edge" d="M181,422.5 A13,13 0 0 0 207,422.5"/>
+      <path class="ck-pink-edge" d="M203,425 A13,13 0 0 0 229,425"/>
+      <path class="ck-pink-edge" d="M225,426.5 A13,13 0 0 0 251,426.5"/>
+      <path class="ck-pink-edge" d="M247,427 A13,13 0 0 0 273,427"/>
+      <path class="ck-pink-edge" d="M269,426.5 A13,13 0 0 0 295,426.5"/>
+      <path class="ck-pink-edge" d="M291,425 A13,13 0 0 0 317,425"/>
+      <path class="ck-pink-edge" d="M313,422.5 A13,13 0 0 0 339,422.5"/>
+      <path class="ck-pink-edge" d="M335,418.8 A13,13 0 0 0 361,418.8"/>
+      <path class="ck-pink-edge" d="M357,413.8 A13,13 0 0 0 383,413.8"/>
+      <path class="ck-pink-edge" d="M379,407.4 A13,13 0 0 0 405,407.4"/>
+      <path class="ck-pink-edge" d="M401,399.2 A13,13 0 0 0 427,399.2"/>
+      <path class="ck-pink-edge" d="M423,388.5 A13,13 0 0 0 449,388.5"/>
+      <path class="ck-pink-edge" d="M445,374 A13,13 0 0 0 471,374"/>
+      <path class="ck-pink-edge" d="M467,350.5 A13,13 0 0 0 493,350.5"/>
+      <path class="ck-pink-fold" d="M51,341.1 L51,368.1"/>
+      <path class="ck-pink-fold" d="M73,358.9 L73,385.9"/>
+      <path class="ck-pink-fold" d="M95,371.2 L95,398.2"/>
+      <path class="ck-pink-fold" d="M117,380.6 L117,407.6"/>
+      <path class="ck-pink-fold" d="M139,387.8 L139,414.8"/>
+      <path class="ck-pink-fold" d="M161,393.5 L161,420.5"/>
+      <path class="ck-pink-fold" d="M183,397.8 L183,424.8"/>
+      <path class="ck-pink-fold" d="M205,400.9 L205,427.9"/>
+      <path class="ck-pink-fold" d="M227,402.9 L227,429.9"/>
+      <path class="ck-pink-fold" d="M249,403.9 L249,430.9"/>
+      <path class="ck-pink-fold" d="M271,403.9 L271,430.9"/>
+      <path class="ck-pink-fold" d="M293,402.9 L293,429.9"/>
+      <path class="ck-pink-fold" d="M315,400.9 L315,427.9"/>
+      <path class="ck-pink-fold" d="M337,397.8 L337,424.8"/>
+      <path class="ck-pink-fold" d="M359,393.5 L359,420.5"/>
+      <path class="ck-pink-fold" d="M381,387.8 L381,414.8"/>
+      <path class="ck-pink-fold" d="M403,380.6 L403,407.6"/>
+      <path class="ck-pink-fold" d="M425,371.2 L425,398.2"/>
+      <path class="ck-pink-fold" d="M447,358.9 L447,385.9"/>
+      <path class="ck-pink-fold" d="M469,341.1 L469,368.1"/>
+      <path class="ck-pink-hi" d="M33,352.5 A9,9 0 0 1 39,343.5"/>
+      <path class="ck-pink-hi" d="M55,376 A9,9 0 0 1 61,367"/>
+      <path class="ck-pink-hi" d="M77,390.5 A9,9 0 0 1 83,381.5"/>
+      <path class="ck-pink-hi" d="M99,401.2 A9,9 0 0 1 105,392.2"/>
+      <path class="ck-pink-hi" d="M121,409.4 A9,9 0 0 1 127,400.4"/>
+      <path class="ck-pink-hi" d="M143,415.8 A9,9 0 0 1 149,406.8"/>
+      <path class="ck-pink-hi" d="M165,420.8 A9,9 0 0 1 171,411.8"/>
+      <path class="ck-pink-hi" d="M187,424.5 A9,9 0 0 1 193,415.5"/>
+      <path class="ck-pink-hi" d="M209,427 A9,9 0 0 1 215,418"/>
+      <path class="ck-pink-hi" d="M231,428.5 A9,9 0 0 1 237,419.5"/>
+      <path class="ck-pink-hi" d="M253,429 A9,9 0 0 1 259,420"/>
+      <path class="ck-pink-hi" d="M275,428.5 A9,9 0 0 1 281,419.5"/>
+      <path class="ck-pink-hi" d="M297,427 A9,9 0 0 1 303,418"/>
+      <path class="ck-pink-hi" d="M319,424.5 A9,9 0 0 1 325,415.5"/>
+      <path class="ck-pink-hi" d="M341,420.8 A9,9 0 0 1 347,411.8"/>
+      <path class="ck-pink-hi" d="M363,415.8 A9,9 0 0 1 369,406.8"/>
+      <path class="ck-pink-hi" d="M385,409.4 A9,9 0 0 1 391,400.4"/>
+      <path class="ck-pink-hi" d="M407,401.2 A9,9 0 0 1 413,392.2"/>
+      <path class="ck-pink-hi" d="M429,390.5 A9,9 0 0 1 435,381.5"/>
+      <path class="ck-pink-hi" d="M451,376 A9,9 0 0 1 457,367"/>
+      <path class="ck-pink-hi" d="M473,352.5 A9,9 0 0 1 479,343.5"/>
+      <path class="ck-pink-top" d="M30,294 A230,108 0 0 0 490,294"/>
+      <!-- ganache top -->
+      <ellipse class="ck-ganache" cx="260" cy="200" rx="230" ry="108"/>
+      <ellipse class="ck-rim" cx="260" cy="200" rx="219" ry="98"/>
+      <path class="ck-gloss" d="M92,168 A190,84 0 0 1 158,122"/>
+      <path class="ck-gloss ck-gloss-small" d="M178,110 A190,84 0 0 1 206,100"/>
+      <path class="ck-gloss ck-gloss-small" d="M406,250 A190,84 0 0 0 440,222"/>
+      <!-- candles: back row first, so rows closer to the viewer sit on top -->
+      <g class="cd" transform="translate(79 150)" style="--d:-0.37s">
+        <circle class="glow" cy="-46" r="13"/>
+        <rect class="cd-body k-pink" x="-6" y="-34" width="12" height="34" rx="2.5"/>
+        <rect class="cd-shine" x="-3.6" y="-31" width="2.6" height="26" rx="1.3"/>
+        <line class="cd-wick" x1="0" y1="-31" x2="0" y2="-38.5"/>
+        <path class="smoke" d="M0,-40 C-7,-48 7,-56 0,-64 C-6,-71 5,-77 0,-84"/>
+        <g class="flame"><path class="fl-out" d="M0,-58 C4,-52 6.5,-47 6.5,-43.5 C6.5,-40 3.5,-38 0,-38 C-3.5,-38 -6.5,-40 -6.5,-43.5 C-6.5,-47 -4,-52 0,-58 Z"/><path class="fl-in" d="M0,-50 C2,-46.5 3.2,-44 3.2,-42 C3.2,-40 1.8,-39 0,-39 C-1.8,-39 -3.2,-40 -3.2,-42 C-3.2,-44 -2,-46.5 0,-50 Z"/></g>
+      </g>
+      <g class="cd" transform="translate(145 150)" style="--d:-0.74s">
+        <circle class="glow" cy="-46" r="13"/>
+        <rect class="cd-body k-paper" x="-6" y="-34" width="12" height="34" rx="2.5"/>
+        <rect class="cd-shine" x="-3.6" y="-31" width="2.6" height="26" rx="1.3"/>
+        <line class="cd-wick" x1="0" y1="-31" x2="0" y2="-38.5"/>
+        <path class="smoke" d="M0,-40 C-7,-48 7,-56 0,-64 C-6,-71 5,-77 0,-84"/>
+        <g class="flame"><path class="fl-out" d="M0,-58 C4,-52 6.5,-47 6.5,-43.5 C6.5,-40 3.5,-38 0,-38 C-3.5,-38 -6.5,-40 -6.5,-43.5 C-6.5,-47 -4,-52 0,-58 Z"/><path class="fl-in" d="M0,-50 C2,-46.5 3.2,-44 3.2,-42 C3.2,-40 1.8,-39 0,-39 C-1.8,-39 -3.2,-40 -3.2,-42 C-3.2,-44 -2,-46.5 0,-50 Z"/></g>
+      </g>
+      <g class="cd" transform="translate(211 150)" style="--d:-1.11s">
+        <circle class="glow" cy="-46" r="13"/>
+        <rect class="cd-body k-mustard" x="-6" y="-34" width="12" height="34" rx="2.5"/>
+        <rect class="cd-shine" x="-3.6" y="-31" width="2.6" height="26" rx="1.3"/>
+        <line class="cd-wick" x1="0" y1="-31" x2="0" y2="-38.5"/>
+        <path class="smoke" d="M0,-40 C-7,-48 7,-56 0,-64 C-6,-71 5,-77 0,-84"/>
+        <g class="flame"><path class="fl-out" d="M0,-58 C4,-52 6.5,-47 6.5,-43.5 C6.5,-40 3.5,-38 0,-38 C-3.5,-38 -6.5,-40 -6.5,-43.5 C-6.5,-47 -4,-52 0,-58 Z"/><path class="fl-in" d="M0,-50 C2,-46.5 3.2,-44 3.2,-42 C3.2,-40 1.8,-39 0,-39 C-1.8,-39 -3.2,-40 -3.2,-42 C-3.2,-44 -2,-46.5 0,-50 Z"/></g>
+      </g>
+      <g class="cd" transform="translate(277 150)" style="--d:-0.28s">
+        <circle class="glow" cy="-46" r="13"/>
+        <rect class="cd-body k-cherry" x="-6" y="-34" width="12" height="34" rx="2.5"/>
+        <rect class="cd-shine" x="-3.6" y="-31" width="2.6" height="26" rx="1.3"/>
+        <line class="cd-wick" x1="0" y1="-31" x2="0" y2="-38.5"/>
+        <path class="smoke" d="M0,-40 C-7,-48 7,-56 0,-64 C-6,-71 5,-77 0,-84"/>
+        <g class="flame"><path class="fl-out" d="M0,-58 C4,-52 6.5,-47 6.5,-43.5 C6.5,-40 3.5,-38 0,-38 C-3.5,-38 -6.5,-40 -6.5,-43.5 C-6.5,-47 -4,-52 0,-58 Z"/><path class="fl-in" d="M0,-50 C2,-46.5 3.2,-44 3.2,-42 C3.2,-40 1.8,-39 0,-39 C-1.8,-39 -3.2,-40 -3.2,-42 C-3.2,-44 -2,-46.5 0,-50 Z"/></g>
+      </g>
+      <g class="cd" transform="translate(343 150)" style="--d:-0.65s">
+        <circle class="glow" cy="-46" r="13"/>
+        <rect class="cd-body k-pink" x="-6" y="-34" width="12" height="34" rx="2.5"/>
+        <rect class="cd-shine" x="-3.6" y="-31" width="2.6" height="26" rx="1.3"/>
+        <line class="cd-wick" x1="0" y1="-31" x2="0" y2="-38.5"/>
+        <path class="smoke" d="M0,-40 C-7,-48 7,-56 0,-64 C-6,-71 5,-77 0,-84"/>
+        <g class="flame"><path class="fl-out" d="M0,-58 C4,-52 6.5,-47 6.5,-43.5 C6.5,-40 3.5,-38 0,-38 C-3.5,-38 -6.5,-40 -6.5,-43.5 C-6.5,-47 -4,-52 0,-58 Z"/><path class="fl-in" d="M0,-50 C2,-46.5 3.2,-44 3.2,-42 C3.2,-40 1.8,-39 0,-39 C-1.8,-39 -3.2,-40 -3.2,-42 C-3.2,-44 -2,-46.5 0,-50 Z"/></g>
+      </g>
+      <g class="cd" transform="translate(409 150)" style="--d:-1.02s">
+        <circle class="glow" cy="-46" r="13"/>
+        <rect class="cd-body k-paper" x="-6" y="-34" width="12" height="34" rx="2.5"/>
+        <rect class="cd-shine" x="-3.6" y="-31" width="2.6" height="26" rx="1.3"/>
+        <line class="cd-wick" x1="0" y1="-31" x2="0" y2="-38.5"/>
+        <path class="smoke" d="M0,-40 C-7,-48 7,-56 0,-64 C-6,-71 5,-77 0,-84"/>
+        <g class="flame"><path class="fl-out" d="M0,-58 C4,-52 6.5,-47 6.5,-43.5 C6.5,-40 3.5,-38 0,-38 C-3.5,-38 -6.5,-40 -6.5,-43.5 C-6.5,-47 -4,-52 0,-58 Z"/><path class="fl-in" d="M0,-50 C2,-46.5 3.2,-44 3.2,-42 C3.2,-40 1.8,-39 0,-39 C-1.8,-39 -3.2,-40 -3.2,-42 C-3.2,-44 -2,-46.5 0,-50 Z"/></g>
+      </g>
+      <g class="cd" transform="translate(111 208)" style="--d:-0.19s">
+        <circle class="glow" cy="-46" r="13"/>
+        <rect class="cd-body k-mustard" x="-6" y="-34" width="12" height="34" rx="2.5"/>
+        <rect class="cd-shine" x="-3.6" y="-31" width="2.6" height="26" rx="1.3"/>
+        <line class="cd-wick" x1="0" y1="-31" x2="0" y2="-38.5"/>
+        <path class="smoke" d="M0,-40 C-7,-48 7,-56 0,-64 C-6,-71 5,-77 0,-84"/>
+        <g class="flame"><path class="fl-out" d="M0,-58 C4,-52 6.5,-47 6.5,-43.5 C6.5,-40 3.5,-38 0,-38 C-3.5,-38 -6.5,-40 -6.5,-43.5 C-6.5,-47 -4,-52 0,-58 Z"/><path class="fl-in" d="M0,-50 C2,-46.5 3.2,-44 3.2,-42 C3.2,-40 1.8,-39 0,-39 C-1.8,-39 -3.2,-40 -3.2,-42 C-3.2,-44 -2,-46.5 0,-50 Z"/></g>
+      </g>
+      <g class="cd" transform="translate(177 208)" style="--d:-0.56s">
+        <circle class="glow" cy="-46" r="13"/>
+        <rect class="cd-body k-cherry" x="-6" y="-34" width="12" height="34" rx="2.5"/>
+        <rect class="cd-shine" x="-3.6" y="-31" width="2.6" height="26" rx="1.3"/>
+        <line class="cd-wick" x1="0" y1="-31" x2="0" y2="-38.5"/>
+        <path class="smoke" d="M0,-40 C-7,-48 7,-56 0,-64 C-6,-71 5,-77 0,-84"/>
+        <g class="flame"><path class="fl-out" d="M0,-58 C4,-52 6.5,-47 6.5,-43.5 C6.5,-40 3.5,-38 0,-38 C-3.5,-38 -6.5,-40 -6.5,-43.5 C-6.5,-47 -4,-52 0,-58 Z"/><path class="fl-in" d="M0,-50 C2,-46.5 3.2,-44 3.2,-42 C3.2,-40 1.8,-39 0,-39 C-1.8,-39 -3.2,-40 -3.2,-42 C-3.2,-44 -2,-46.5 0,-50 Z"/></g>
+      </g>
+      <g class="cd" transform="translate(243 208)" style="--d:-0.93s">
+        <circle class="glow" cy="-46" r="13"/>
+        <rect class="cd-body k-pink" x="-6" y="-34" width="12" height="34" rx="2.5"/>
+        <rect class="cd-shine" x="-3.6" y="-31" width="2.6" height="26" rx="1.3"/>
+        <line class="cd-wick" x1="0" y1="-31" x2="0" y2="-38.5"/>
+        <path class="smoke" d="M0,-40 C-7,-48 7,-56 0,-64 C-6,-71 5,-77 0,-84"/>
+        <g class="flame"><path class="fl-out" d="M0,-58 C4,-52 6.5,-47 6.5,-43.5 C6.5,-40 3.5,-38 0,-38 C-3.5,-38 -6.5,-40 -6.5,-43.5 C-6.5,-47 -4,-52 0,-58 Z"/><path class="fl-in" d="M0,-50 C2,-46.5 3.2,-44 3.2,-42 C3.2,-40 1.8,-39 0,-39 C-1.8,-39 -3.2,-40 -3.2,-42 C-3.2,-44 -2,-46.5 0,-50 Z"/></g>
+      </g>
+      <g class="cd" transform="translate(309 208)" style="--d:-0.10s">
+        <circle class="glow" cy="-46" r="13"/>
+        <rect class="cd-body k-paper" x="-6" y="-34" width="12" height="34" rx="2.5"/>
+        <rect class="cd-shine" x="-3.6" y="-31" width="2.6" height="26" rx="1.3"/>
+        <line class="cd-wick" x1="0" y1="-31" x2="0" y2="-38.5"/>
+        <path class="smoke" d="M0,-40 C-7,-48 7,-56 0,-64 C-6,-71 5,-77 0,-84"/>
+        <g class="flame"><path class="fl-out" d="M0,-58 C4,-52 6.5,-47 6.5,-43.5 C6.5,-40 3.5,-38 0,-38 C-3.5,-38 -6.5,-40 -6.5,-43.5 C-6.5,-47 -4,-52 0,-58 Z"/><path class="fl-in" d="M0,-50 C2,-46.5 3.2,-44 3.2,-42 C3.2,-40 1.8,-39 0,-39 C-1.8,-39 -3.2,-40 -3.2,-42 C-3.2,-44 -2,-46.5 0,-50 Z"/></g>
+      </g>
+      <g class="cd" transform="translate(375 208)" style="--d:-0.47s">
+        <circle class="glow" cy="-46" r="13"/>
+        <rect class="cd-body k-mustard" x="-6" y="-34" width="12" height="34" rx="2.5"/>
+        <rect class="cd-shine" x="-3.6" y="-31" width="2.6" height="26" rx="1.3"/>
+        <line class="cd-wick" x1="0" y1="-31" x2="0" y2="-38.5"/>
+        <path class="smoke" d="M0,-40 C-7,-48 7,-56 0,-64 C-6,-71 5,-77 0,-84"/>
+        <g class="flame"><path class="fl-out" d="M0,-58 C4,-52 6.5,-47 6.5,-43.5 C6.5,-40 3.5,-38 0,-38 C-3.5,-38 -6.5,-40 -6.5,-43.5 C-6.5,-47 -4,-52 0,-58 Z"/><path class="fl-in" d="M0,-50 C2,-46.5 3.2,-44 3.2,-42 C3.2,-40 1.8,-39 0,-39 C-1.8,-39 -3.2,-40 -3.2,-42 C-3.2,-44 -2,-46.5 0,-50 Z"/></g>
+      </g>
+      <g class="cd" transform="translate(441 208)" style="--d:-0.84s">
+        <circle class="glow" cy="-46" r="13"/>
+        <rect class="cd-body k-cherry" x="-6" y="-34" width="12" height="34" rx="2.5"/>
+        <rect class="cd-shine" x="-3.6" y="-31" width="2.6" height="26" rx="1.3"/>
+        <line class="cd-wick" x1="0" y1="-31" x2="0" y2="-38.5"/>
+        <path class="smoke" d="M0,-40 C-7,-48 7,-56 0,-64 C-6,-71 5,-77 0,-84"/>
+        <g class="flame"><path class="fl-out" d="M0,-58 C4,-52 6.5,-47 6.5,-43.5 C6.5,-40 3.5,-38 0,-38 C-3.5,-38 -6.5,-40 -6.5,-43.5 C-6.5,-47 -4,-52 0,-58 Z"/><path class="fl-in" d="M0,-50 C2,-46.5 3.2,-44 3.2,-42 C3.2,-40 1.8,-39 0,-39 C-1.8,-39 -3.2,-40 -3.2,-42 C-3.2,-44 -2,-46.5 0,-50 Z"/></g>
+      </g>
+      <g class="cd" transform="translate(128 266)" style="--d:-0.01s">
+        <circle class="glow" cy="-46" r="13"/>
+        <rect class="cd-body k-pink" x="-6" y="-34" width="12" height="34" rx="2.5"/>
+        <rect class="cd-shine" x="-3.6" y="-31" width="2.6" height="26" rx="1.3"/>
+        <line class="cd-wick" x1="0" y1="-31" x2="0" y2="-38.5"/>
+        <path class="smoke" d="M0,-40 C-7,-48 7,-56 0,-64 C-6,-71 5,-77 0,-84"/>
+        <g class="flame"><path class="fl-out" d="M0,-58 C4,-52 6.5,-47 6.5,-43.5 C6.5,-40 3.5,-38 0,-38 C-3.5,-38 -6.5,-40 -6.5,-43.5 C-6.5,-47 -4,-52 0,-58 Z"/><path class="fl-in" d="M0,-50 C2,-46.5 3.2,-44 3.2,-42 C3.2,-40 1.8,-39 0,-39 C-1.8,-39 -3.2,-40 -3.2,-42 C-3.2,-44 -2,-46.5 0,-50 Z"/></g>
+      </g>
+      <g class="cd" transform="translate(194 266)" style="--d:-0.38s">
+        <circle class="glow" cy="-46" r="13"/>
+        <rect class="cd-body k-paper" x="-6" y="-34" width="12" height="34" rx="2.5"/>
+        <rect class="cd-shine" x="-3.6" y="-31" width="2.6" height="26" rx="1.3"/>
+        <line class="cd-wick" x1="0" y1="-31" x2="0" y2="-38.5"/>
+        <path class="smoke" d="M0,-40 C-7,-48 7,-56 0,-64 C-6,-71 5,-77 0,-84"/>
+        <g class="flame"><path class="fl-out" d="M0,-58 C4,-52 6.5,-47 6.5,-43.5 C6.5,-40 3.5,-38 0,-38 C-3.5,-38 -6.5,-40 -6.5,-43.5 C-6.5,-47 -4,-52 0,-58 Z"/><path class="fl-in" d="M0,-50 C2,-46.5 3.2,-44 3.2,-42 C3.2,-40 1.8,-39 0,-39 C-1.8,-39 -3.2,-40 -3.2,-42 C-3.2,-44 -2,-46.5 0,-50 Z"/></g>
+      </g>
+      <g class="cd" transform="translate(260 266)" style="--d:-0.75s">
+        <circle class="glow" cy="-46" r="13"/>
+        <rect class="cd-body k-mustard" x="-6" y="-34" width="12" height="34" rx="2.5"/>
+        <rect class="cd-shine" x="-3.6" y="-31" width="2.6" height="26" rx="1.3"/>
+        <line class="cd-wick" x1="0" y1="-31" x2="0" y2="-38.5"/>
+        <path class="smoke" d="M0,-40 C-7,-48 7,-56 0,-64 C-6,-71 5,-77 0,-84"/>
+        <g class="flame"><path class="fl-out" d="M0,-58 C4,-52 6.5,-47 6.5,-43.5 C6.5,-40 3.5,-38 0,-38 C-3.5,-38 -6.5,-40 -6.5,-43.5 C-6.5,-47 -4,-52 0,-58 Z"/><path class="fl-in" d="M0,-50 C2,-46.5 3.2,-44 3.2,-42 C3.2,-40 1.8,-39 0,-39 C-1.8,-39 -3.2,-40 -3.2,-42 C-3.2,-44 -2,-46.5 0,-50 Z"/></g>
+      </g>
+      <g class="cd" transform="translate(326 266)" style="--d:-1.12s">
+        <circle class="glow" cy="-46" r="13"/>
+        <rect class="cd-body k-cherry" x="-6" y="-34" width="12" height="34" rx="2.5"/>
+        <rect class="cd-shine" x="-3.6" y="-31" width="2.6" height="26" rx="1.3"/>
+        <line class="cd-wick" x1="0" y1="-31" x2="0" y2="-38.5"/>
+        <path class="smoke" d="M0,-40 C-7,-48 7,-56 0,-64 C-6,-71 5,-77 0,-84"/>
+        <g class="flame"><path class="fl-out" d="M0,-58 C4,-52 6.5,-47 6.5,-43.5 C6.5,-40 3.5,-38 0,-38 C-3.5,-38 -6.5,-40 -6.5,-43.5 C-6.5,-47 -4,-52 0,-58 Z"/><path class="fl-in" d="M0,-50 C2,-46.5 3.2,-44 3.2,-42 C3.2,-40 1.8,-39 0,-39 C-1.8,-39 -3.2,-40 -3.2,-42 C-3.2,-44 -2,-46.5 0,-50 Z"/></g>
+      </g>
+      <g class="cd" transform="translate(392 266)" style="--d:-0.29s">
+        <circle class="glow" cy="-46" r="13"/>
+        <rect class="cd-body k-pink" x="-6" y="-34" width="12" height="34" rx="2.5"/>
+        <rect class="cd-shine" x="-3.6" y="-31" width="2.6" height="26" rx="1.3"/>
+        <line class="cd-wick" x1="0" y1="-31" x2="0" y2="-38.5"/>
+        <path class="smoke" d="M0,-40 C-7,-48 7,-56 0,-64 C-6,-71 5,-77 0,-84"/>
+        <g class="flame"><path class="fl-out" d="M0,-58 C4,-52 6.5,-47 6.5,-43.5 C6.5,-40 3.5,-38 0,-38 C-3.5,-38 -6.5,-40 -6.5,-43.5 C-6.5,-47 -4,-52 0,-58 Z"/><path class="fl-in" d="M0,-50 C2,-46.5 3.2,-44 3.2,-42 C3.2,-40 1.8,-39 0,-39 C-1.8,-39 -3.2,-40 -3.2,-42 C-3.2,-44 -2,-46.5 0,-50 Z"/></g>
+      </g>
+      </svg>
+        <button type="button" class="candle" style="--x:15.19%;--y:26.38%" aria-label="Blow out candle 1 of 17" aria-pressed="false" autocomplete="off"></button>
+        <button type="button" class="candle" style="--x:27.88%;--y:26.38%" aria-label="Blow out candle 2 of 17" aria-pressed="false" autocomplete="off"></button>
+        <button type="button" class="candle" style="--x:40.58%;--y:26.38%" aria-label="Blow out candle 3 of 17" aria-pressed="false" autocomplete="off"></button>
+        <button type="button" class="candle" style="--x:53.27%;--y:26.38%" aria-label="Blow out candle 4 of 17" aria-pressed="false" autocomplete="off"></button>
+        <button type="button" class="candle" style="--x:65.96%;--y:26.38%" aria-label="Blow out candle 5 of 17" aria-pressed="false" autocomplete="off"></button>
+        <button type="button" class="candle" style="--x:78.65%;--y:26.38%" aria-label="Blow out candle 6 of 17" aria-pressed="false" autocomplete="off"></button>
+        <button type="button" class="candle" style="--x:21.35%;--y:38.72%" aria-label="Blow out candle 7 of 17" aria-pressed="false" autocomplete="off"></button>
+        <button type="button" class="candle" style="--x:34.04%;--y:38.72%" aria-label="Blow out candle 8 of 17" aria-pressed="false" autocomplete="off"></button>
+        <button type="button" class="candle" style="--x:46.73%;--y:38.72%" aria-label="Blow out candle 9 of 17" aria-pressed="false" autocomplete="off"></button>
+        <button type="button" class="candle" style="--x:59.42%;--y:38.72%" aria-label="Blow out candle 10 of 17" aria-pressed="false" autocomplete="off"></button>
+        <button type="button" class="candle" style="--x:72.12%;--y:38.72%" aria-label="Blow out candle 11 of 17" aria-pressed="false" autocomplete="off"></button>
+        <button type="button" class="candle" style="--x:84.81%;--y:38.72%" aria-label="Blow out candle 12 of 17" aria-pressed="false" autocomplete="off"></button>
+        <button type="button" class="candle" style="--x:24.62%;--y:51.06%" aria-label="Blow out candle 13 of 17" aria-pressed="false" autocomplete="off"></button>
+        <button type="button" class="candle" style="--x:37.31%;--y:51.06%" aria-label="Blow out candle 14 of 17" aria-pressed="false" autocomplete="off"></button>
+        <button type="button" class="candle" style="--x:50.00%;--y:51.06%" aria-label="Blow out candle 15 of 17" aria-pressed="false" autocomplete="off"></button>
+        <button type="button" class="candle" style="--x:62.69%;--y:51.06%" aria-label="Blow out candle 16 of 17" aria-pressed="false" autocomplete="off"></button>
+        <button type="button" class="candle" style="--x:75.38%;--y:51.06%" aria-label="Blow out candle 17 of 17" aria-pressed="false" autocomplete="off"></button>
+      </div>
+      <p class="cake-hint" id="cake-hint"></p>
+      <p class="cake-count" id="cake-count" role="status"></p>
+    </div>
+  </section>
 
   <div class="mini-player" id="mini-player" role="group" aria-label="Music player" inert>
     <div class="mini-cassette" id="mini-cassette" aria-hidden="true">

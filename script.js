@@ -1071,6 +1071,115 @@
   });
   els.replay.addEventListener('click', function () { location.reload(); });
 
+  // ---------- Surprise: button, scene change, cake (Phase 6) ----------
+  // Event driven. Nothing here reads the audio clock, so song 2 playing, pausing or ending cannot change it.
+  // State is { scene, blown }. renderSurprise(state) is the only code that touches the scene classes,
+  // the candles and the counter. A click only updates the state and calls it.
+
+  var SURP = SITE.surprise;
+  var SCENE_STUCK_MS = 2500;   // the frame loop releases a step whose transitionend never came
+
+  var sx = {
+    btn:   $('surprise-btn'),
+    scene: $('cake-scene'),
+    stack: $('cake-stack'),
+    hint:  $('cake-hint'),
+    count: $('cake-count'),
+    cakes: Array.prototype.slice.call(document.querySelectorAll('#cake-scene .cd')),    // candle art, in DOM order
+    btns:  Array.prototype.slice.call(document.querySelectorAll('#cake-scene .candle')) // candle buttons, same order
+  };
+  var total = sx.btns.length;                                // 17: back row 1 to 6, middle 7 to 12, front 13 to 17
+
+  var surprise = { scene: 'letter', blown: new Set() };      // blown holds candle numbers, 1 based
+  var sceneBusy = false;                                     // true from the surprise tap until the cake has settled
+  var sceneWait = null;                                      // the step waiting for a transitionend
+  var shownLeft = -1;
+
+  sx.btn.textContent = SURP.button;
+  sx.btn.setAttribute('aria-label', SURP.button);
+  sx.hint.textContent = SURP.hint;
+
+  function renderSurprise(st) {
+    var cake = st.scene === 'cake';
+    els.scene.classList.toggle('is-away', cake);             // the letter and envelope scene fades out
+    if (cake) els.scene.setAttribute('inert', '');
+    sx.scene.classList.toggle('is-in', cake);                // the cake scene rises in
+
+    var left = total;
+    for (var i = 0; i < total; i++) {
+      var out = st.blown.has(i + 1);
+      if (out) left--;
+      if (sx.cakes[i].classList.contains('is-out') !== out) {
+        sx.cakes[i].classList.toggle('is-out', out);         // flame goes out, smoke plays (CSS)
+        sx.btns[i].disabled = out;
+        sx.btns[i].setAttribute('aria-pressed', out ? 'true' : 'false');
+      }
+    }
+    if (left !== shownLeft) {
+      shownLeft = left;
+      sx.count.textContent = SURP.left.replace('{n}', String(left));
+      sx.scene.classList.toggle('is-done', left === 0);      // all out: hint and counter fade away
+    }
+  }
+
+  // Runs done() once, when el finishes transitioning prop. The frame loop calls go() itself
+  // if the event never comes (SCENE_STUCK_MS), so the page cannot get stuck between scenes.
+  function waitFor(el, prop, done) {
+    function onEnd(e) {
+      if (e.target === el && e.propertyName === prop) go();
+    }
+    function go() {
+      if (!sceneWait || sceneWait.go !== go) return;         // already ran
+      el.removeEventListener('transitionend', onEnd);
+      sceneWait = null;
+      done();
+    }
+    el.addEventListener('transitionend', onEnd);
+    sceneWait = { since: performance.now(), go: go };
+  }
+
+  // The first lit candle at or after index from (wrapping round)
+  function focusNextLit(from) {
+    for (var k = 0; k < total; k++) {
+      var j = (from + k) % total;
+      if (!surprise.blown.has(j + 1)) { sx.btns[j].focus({ preventScroll: true }); return; }
+    }
+  }
+
+  function settleCake() {
+    sx.scene.removeAttribute('inert');                       // the candles are live once the cake has stopped moving
+    sceneBusy = false;
+    focusNextLit(0);
+  }
+
+  // Surprise button: the panel closes (the same close as the top button), then the letter scene fades out
+  // and the cake rises in, then the candles go live. Each step starts on the previous step's transitionend.
+  sx.btn.addEventListener('click', function () {
+    if (sceneBusy || surprise.scene !== 'letter' || !reading) return;
+    sceneBusy = true;
+    sx.btn.disabled = true;
+    closeLetter();
+    waitFor(els.panel, 'opacity', function () {
+      surprise.scene = 'cake';
+      renderSurprise(surprise);
+      waitFor(sx.stack, 'opacity', settleCake);
+    });
+  });
+
+  // Candles: exactly one click handler each. A candle goes out once and cannot be relit.
+  sx.btns.forEach(function (btn, i) {
+    btn.addEventListener('click', function () {
+      var n = i + 1;
+      if (surprise.scene !== 'cake' || sceneBusy || surprise.blown.has(n)) return;
+      var hadFocus = document.activeElement === btn;
+      surprise.blown.add(n);
+      renderSurprise(surprise);
+      if (hadFocus) focusNextLit(i + 1);                     // keyboard: carry on with the next lit candle
+    });
+  });
+
+  renderSurprise(surprise);
+
   // ---------- render: song time -> screen ----------
   // uiT is the active song's time (mini player). boardT is the collage clock: a pure function of song 1's
   // time before the tap, parked at D after it. The transition stage logic lives in HSLogic.
@@ -1116,6 +1225,7 @@
       applyLayout();
       envView.key = ''; // the envelope's slide offset depends on the board height
     }
+    if (sceneWait && now - sceneWait.since > SCENE_STUCK_MS) sceneWait.go();
     syncPlayState();
     var bt = boardTime();
     if (state.tapped) {
