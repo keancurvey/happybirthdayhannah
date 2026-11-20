@@ -1,7 +1,8 @@
 window.SITE = {
   songs: {
     main:   { src: "music/song1.mp3", title: "cherry flavoured love inside your heart", artist: "wave to earth" },
-    letter: { src: "music/song2.mp3", title: "The Only Exception (instrumental)", artist: "Paramore" }
+    letter: { src: "music/song2.mp3", title: "The Only Exception (instrumental)", artist: "Paramore" },
+    birthday: { src: "music/song3.mp3", title: "Happy Birthday", artist: "" }
   },
   photos: [
     { file: "images/01.png", title: "Born in Pili", cue: 10,
@@ -52,5 +53,14 @@ window.SITE = {
     button: "close this letter for a surprise",
     hint: "tap each candle",
     left: "{n} left"
+  },
+  // added in Phase 8: left pair is chibi3, chibi4 and right pair is chibi1, chibi2, in this order
+  finale: {
+    chibis: [
+      { file: "images/chibi3.webp", side: "left" },
+      { file: "images/chibi4.webp", side: "left" },
+      { file: "images/chibi1.webp", side: "right" },
+      { file: "images/chibi2.webp", side: "right" }
+    ]
   }
 };

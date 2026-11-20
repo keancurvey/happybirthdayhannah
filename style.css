@@ -1219,3 +1219,210 @@ body::before {
   .video-stack { transform: none; }
   .video-scene.is-in .video-stack { transition: none; }
 }
+
+/* ============================================================
+   Phase 8: finale. The video fades out, the cake scene fades back in, then confetti, song 3 and four chibis.
+   Event driven. script.js renderSurprise(state) toggles .is-finale and .is-party (cake scene), .is-on (confetti)
+   and .is-back (mini player). Every keyframe here animates only transform and opacity.
+   ============================================================ */
+
+/* The video scene now fades out when it loses .is-in (it used to be removed for good only by a reload) */
+.video-scene { transition: opacity 0.8s ease, visibility 0s linear 0.8s; }
+
+/* Mini player coming back: the base rule delays its first appearance by the cassette dock time, not wanted here */
+.mini-player.is-visible.is-back {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition: opacity 0.5s ease;
+}
+
+/* ---------- Finale layout ---------- */
+/* --cake-w is the cake's width. --cw and --ch are one chibi's box (--chibi-ratio is the assumed height / width;
+   the image is fitted inside it with object-fit: contain, so a missing or odd image never moves anything).
+   Beside the cake (above 1024 px): each side holds two chibis and 170 px is the cap. */
+
+.cake-scene.is-finale {
+  --chibi-ratio: 1.3;
+  --cake-w: max(120px, min(520px, 92vw, calc((100dvh - var(--player-h) - 70px) * 1.106)));
+  --cw: max(56px, min(170px, calc((50vw - var(--cake-w) / 2 - 56px) / 2)));
+  --ch: calc(var(--cw) * var(--chibi-ratio));
+}
+
+.cake-scene.is-finale .cake { width: var(--cake-w); }
+.cake-scene.is-finale .cake-hint,
+.cake-scene.is-finale .cake-count { display: none; }
+.cake-scene.is-finale .cake-stack { position: relative; }
+
+.finale-replay,
+.chibis { display: none; }
+
+.cake-scene.is-finale .finale-replay {
+  display: block;
+  flex: 0 0 auto;
+  min-height: 44px;
+  margin: 0;
+  padding: 12px 16px;
+  font-size: 15px;
+  pointer-events: auto;
+}
+
+/* Wide: a zero-height line on the floor, near the plate (the replay link is 44 px + the 10 px gap below the cake) */
+.cake-scene.is-finale .chibis {
+  display: block;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(54px + var(--cake-w) * 0.108);
+  height: 0;
+  pointer-events: none;
+}
+
+.chibi-pair {
+  position: absolute;
+  bottom: 0;
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.chibi-pair.is-left  { right: calc(100% + 16px); }
+.chibi-pair.is-right { left: calc(100% + 16px); }
+
+/* the second of each pair stands a little higher, for depth */
+.chibi:nth-child(2) { margin-bottom: calc(var(--ch) * 0.07); }
+
+.chibi {
+  flex: 0 0 auto;
+  width: var(--cw);
+  height: var(--ch);
+  opacity: 0;               /* shown by the entrance animation once the party starts */
+}
+
+.chibi img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: 50% 100%;
+  transform-origin: 50% 100%;   /* the feet */
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.chibi img.is-broken { visibility: hidden; }
+
+/* Per chibi: entrance a beat after the confetti starts, then its own sway period and delay */
+.chibi[data-i="0"] { --enter: 0.6s;  --period: 1.6s;  --dance: 1.3s; }
+.chibi[data-i="1"] { --enter: 0.85s; --period: 1.25s; --dance: 1.7s; }
+.chibi[data-i="2"] { --enter: 1.1s;  --period: 1.8s;  --dance: 1.95s; }
+.chibi[data-i="3"] { --enter: 1.35s; --period: 1.4s;  --dance: 2.3s; }
+
+/* The wrapper does the entrance, the image inside does the sway, so the two never fight over transform */
+.cake-scene.is-party .chibi {
+  animation: chibi-in 0.7s cubic-bezier(0.2, 0.8, 0.25, 1) var(--enter) both;
+}
+
+.cake-scene.is-party .chibi img {
+  --bounce: calc(var(--cw) * 0.06);
+  animation: chibi-dance var(--period) ease-in-out var(--dance) infinite;
+}
+
+@keyframes chibi-in {
+  from { opacity: 0; transform: translateY(32px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes chibi-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* About +-6 degrees around the feet, a small hop on every beat, a slight squash where it lands */
+@keyframes chibi-dance {
+  0%    { transform: rotate(0deg)  translateY(0)                         scale(1, 1); }
+  12.5% { transform: rotate(-3deg) translateY(calc(var(--bounce) * -1))  scale(0.98, 1.03); }
+  25%   { transform: rotate(-6deg) translateY(0)                         scale(1.04, 0.95); }
+  37.5% { transform: rotate(-3deg) translateY(calc(var(--bounce) * -1))  scale(0.98, 1.03); }
+  50%   { transform: rotate(0deg)  translateY(0)                         scale(1.03, 0.96); }
+  62.5% { transform: rotate(3deg)  translateY(calc(var(--bounce) * -1))  scale(0.98, 1.03); }
+  75%   { transform: rotate(6deg)  translateY(0)                         scale(1.04, 0.95); }
+  87.5% { transform: rotate(3deg)  translateY(calc(var(--bounce) * -1))  scale(0.98, 1.03); }
+  100%  { transform: rotate(0deg)  translateY(0)                         scale(1, 1); }
+}
+
+/* Tablet and phone: no room beside the cake, so one row of four under it, above the replay link.
+   Below 1025 px a side would hold two chibis only smaller than about 98 px. The chibis are about 20vw (never below
+   56 px) and also limited by the height, and the cake takes what is left. */
+@media (max-width: 1024px) {
+  .cake-scene.is-finale {
+    --cw: max(56px, min(20vw, calc((100dvh - var(--player-h)) * 0.17)));
+    --cake-w: max(120px, min(520px, 92vw, calc((100dvh - var(--player-h) - var(--ch) - 80px) * 1.106)));
+  }
+
+  .cake-scene.is-finale .chibis {
+    position: static;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 8px;
+    height: auto;
+  }
+
+  .chibi-pair { display: contents; }
+  .chibi:nth-child(2) { margin-bottom: 0; }
+}
+
+/* ---------- Confetti ---------- */
+/* One full-viewport layer, above the cake (11) and the video scene (12), below the mini player (20).
+   Hidden until the party starts. Pieces 41 and up are hidden on phones, so a resize needs no rebuild. */
+
+.confetti {
+  position: fixed;
+  inset: 0;
+  z-index: 15;
+  overflow: hidden;
+  pointer-events: none;
+  display: none;
+}
+
+.confetti.is-on { display: block; }
+
+.confetti-piece {
+  position: absolute;
+  top: -24px;
+  left: var(--x);
+  width: var(--w);
+  height: var(--h);
+  opacity: 0;
+  animation: confetti-fall var(--dur) linear var(--delay) infinite both;
+}
+
+.confetti-piece.is-round { border-radius: 50%; }
+.confetti-piece.k0 { background: var(--pink); }
+.confetti-piece.k1 { background: var(--cherry); }
+.confetti-piece.k2 { background: var(--mustard); }
+.confetti-piece.k3 { background: var(--choc-light); }
+
+@keyframes confetti-fall {
+  0%   { transform: translate3d(0, 0, 0) rotate(0deg); opacity: 0; }
+  6%   { opacity: 1; }
+  94%  { opacity: 1; }
+  100% { transform: translate3d(var(--drift), calc(100vh + 48px), 0) rotate(var(--spin)); opacity: 0; }
+}
+
+@media (max-width: 640px) {
+  .confetti-piece:nth-child(n+41) { display: none; }
+}
+
+/* ---------- Reduced motion ---------- */
+/* Scenes swap with a plain opacity change, no confetti, the chibis appear in place and do not sway */
+
+@media (prefers-reduced-motion: reduce) {
+  .video-scene { transition: opacity 0.3s ease, visibility 0s linear 0.3s; }
+  .mini-player.is-visible.is-back { transition: opacity 0.3s ease; }
+  .confetti { display: none !important; }
+  .cake-scene.is-party .chibi { animation: chibi-fade 0.4s ease both; }
+  .cake-scene.is-party .chibi img { animation: none; }
+}

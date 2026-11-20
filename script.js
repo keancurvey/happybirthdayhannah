@@ -540,6 +540,11 @@
   audio2.preload = 'auto';
   var active = audio;
 
+  // Song 3 (Happy Birthday, Phase 8). No src until the cake first shows (loadVideo), so nothing is requested at load.
+  var song3 = SITE.songs.birthday;
+  var audio3 = new Audio();
+  audio3.preload = 'auto';
+
   function loadSong2() {
     audio2.src = song2.src; // starts loading once the page is ready; a missing file only sets audio2.error
     audio2.load();
@@ -1073,8 +1078,8 @@
 
   // ---------- Surprise: button, scene change, cake (Phase 6), video (Phase 7) ----------
   // Event driven. Nothing here reads the audio clock, so song 2 playing, pausing or ending cannot change it.
-  // State is { scene, blown }, scene is "letter", "cake" or "video". renderSurprise(state) is the only code that touches the scene classes,
-  // the candles and the counter. A click only updates the state and calls it.
+  // State is { scene, blown, party }, scene is "letter", "cake", "video" or "finale". renderSurprise(state) is the only code that touches the
+  // scene classes, the candles, the counter, the confetti layer, the chibis and the mini player. A click only updates the state and calls it.
 
   var SURP = SITE.surprise;
   var SCENE_STUCK_MS = 2500;   // the frame loop releases a step whose transitionend never came
@@ -1089,17 +1094,23 @@
     vFrame: $('video-frame'),
     video:  $('surprise-video'),
     vReplay: $('replay-video'),
+    fReplay: $('replay-finale'),
+    confetti: $('confetti'),
+    chibiImgs: Array.prototype.slice.call(document.querySelectorAll('#cake-scene .chibi img')),   // 4, data.js order
     cakes: Array.prototype.slice.call(document.querySelectorAll('#cake-scene .cd')),    // candle art, in DOM order
     btns:  Array.prototype.slice.call(document.querySelectorAll('#cake-scene .candle')) // candle buttons, same order
   };
   var total = sx.btns.length;                                // 17: back row 1 to 6, middle 7 to 12, front 13 to 17
 
-  var surprise = { scene: 'letter', blown: new Set() };      // blown holds candle numbers, 1 based
+  var surprise = { scene: 'letter', blown: new Set(), party: false };      // blown holds candle numbers, 1 based
   var sceneBusy = false;                                     // true from the surprise tap until the cake has settled
   var sceneWait = null;                                      // the step waiting for a transitionend
   var shownLeft = -1;
   var videoLoaded = false;                                   // the video's src is set once, when the cake first shows
   var handedOff = false;                                     // the 17th candle's handoff runs exactly once
+  var videoLive = false;                                     // the video scene's fade-in step has finished
+  var endedEarly = false;                                    // `ended` came before that, so the finale waits for it
+  var finaleStarted = false;                                 // the finale runs exactly once
 
   sx.btn.textContent = SURP.button;
   sx.btn.setAttribute('aria-label', SURP.button);
@@ -1108,15 +1119,25 @@
   function renderSurprise(st) {
     var cake = st.scene === 'cake';
     var video = st.scene === 'video';
-    els.scene.classList.toggle('is-away', cake || video);    // the letter and envelope scene fades out
-    if (cake || video) els.scene.setAttribute('inert', '');
-    sx.scene.classList.toggle('is-in', cake || video);       // the cake scene rises in and stays until the video has faded in
+    var finale = st.scene === 'finale';
+    els.scene.classList.toggle('is-away', cake || video || finale);    // the letter and envelope scene fades out
+    if (cake || video || finale) els.scene.setAttribute('inert', '');
+    sx.scene.classList.toggle('is-in', cake || video || finale);       // the cake scene rises in and stays until the video has faded in
     sx.scene.classList.toggle('is-gone', video);             // crossfade: the cake fades out
+    sx.scene.classList.toggle('is-finale', finale);          // finale: the cake fades back in, the video scene fades out
+    sx.scene.classList.toggle('is-party', finale && st.party);   // the chibis rise in and dance
     sx.vScene.classList.toggle('is-in', video);              // and the video scene fades in
-    if (video) {
+    sx.confetti.classList.toggle('is-on', finale && st.party);
+    if (video || finale) sx.vScene.setAttribute('inert', ''); // dead to taps while it fades out
+    if (video || (finale && !st.party)) {
       sx.scene.setAttribute('inert', '');
       els.mini.setAttribute('inert', '');                    // the mini player is hidden while the video shows
       els.mini.classList.add('is-away');
+    } else if (finale) {
+      sx.scene.removeAttribute('inert');                     // the cake has settled: the replay link is live
+      els.mini.removeAttribute('inert');                     // the mini player is back
+      els.mini.classList.remove('is-away');
+      els.mini.classList.add('is-back');
     }
 
     var left = total;
@@ -1154,13 +1175,19 @@
 
   // ----- Video (Phase 7) -----
 
-  // Set the source once, when the cake scene first shows, so the file buffers while the candles go out.
-  // Nothing is requested at page load: the element has no src in index.html.
+  // Set the sources once, when the cake scene first shows, so the files buffer while the candles go out:
+  // the video, song 3 and the four chibis (Phase 8). Nothing is requested at page load: none has a src in index.html.
   function loadVideo() {
     if (videoLoaded) return;
     videoLoaded = true;
     sx.video.preload = 'auto';
     sx.video.src = SURP.video;
+    audio3.src = song3.src;
+    var chibis = SITE.finale.chibis;
+    sx.chibiImgs.forEach(function (img, i) {
+      img.addEventListener('error', function () { img.classList.add('is-broken'); });   // a missing image leaves its empty box
+      if (chibis[i]) img.src = chibis[i].file;
+    });
   }
 
   // Song 2 eases to 0 over SONG2_FADE_MS on the frame loop, then pauses and gets its volume back.
@@ -1198,6 +1225,18 @@
     startSong2Fade();
     var p = sx.video.play();
     if (p && p.catch) p.catch(function () {});
+    primeSong3();                                            // lets song 3 start later without a tap
+  }
+
+  // Phase 8: play() then pause() at once, inside the 17th candle's click, so the browser allows song 3's
+  // play() after the video's `ended` event. A missing or blocked file is fine.
+  function primeSong3() {
+    try {
+      var p = audio3.play();
+      if (p && p.catch) p.catch(function () {});
+      audio3.pause();
+      audio3.currentTime = 0;
+    } catch (e) {}
   }
 
   // The first lit candle at or after index from (wrapping round)
@@ -1247,8 +1286,10 @@
         // video (a tap on the controls would pause it). Once it is in, it goes live and focus moves to its
         // frame (the frame ignores Enter and Space).
         waitFor(sx.vScene, 'opacity', function () {
+          videoLive = true;
           sx.vScene.removeAttribute('inert');
           sx.vFrame.focus({ preventScroll: true });
+          if (endedEarly) startFinale();                     // `ended` arrived during the fade-in: it runs now
         });
       } else if (hadFocus) {
         focusNextLit(i + 1);                                 // keyboard: carry on with the next lit candle
@@ -1257,6 +1298,58 @@
   });
 
   sx.vReplay.addEventListener('click', function () { location.reload(); });
+  sx.fReplay.addEventListener('click', function () { location.reload(); });
+
+  // ----- Finale (Phase 8) -----
+
+  // The video's own `ended` event is the only thing that starts it. It runs once, and only from the video scene.
+  // Song 2 or song 3 ending never gets here. Before the video scene's fade-in has finished, the event is held
+  // (endedEarly) and the fade-in step starts the finale itself, so the pending waiter is never overwritten.
+  sx.video.addEventListener('ended', function () {
+    if (finaleStarted || surprise.scene !== 'video') return;
+    if (!videoLive) { endedEarly = true; return; }
+    startFinale();
+  });
+
+  function startFinale() {
+    if (finaleStarted || surprise.scene !== 'video') return;
+    finaleStarted = true;
+    surprise.scene = 'finale';
+    renderSurprise(surprise);                                // video scene out, cake scene back in, all candles out
+    waitFor(sx.stack, 'opacity', startParty);
+  }
+
+  // The one step that sets party. Its side effects live here: song 3 plays (not in a click, allowed by the priming
+  // in the 17th candle's handler) and the mini player switches to it. If play() is refused or the file is missing,
+  // the mini player's play button is the fallback. No retries.
+  function startParty() {
+    if (surprise.party) return;
+    surprise.party = true;
+    active = audio3;
+    $('mini-title').textContent = song3.title;
+    $('mini-artist').textContent = song3.artist;
+    var p = audio3.play();
+    if (p && p.catch) p.catch(function () {});
+    renderSurprise(surprise);                                // confetti, chibis, mini player
+  }
+
+  // The confetti is built once: 60 pieces (CSS hides 41 and up on phones and all of them under reduced motion).
+  (function buildConfetti() {
+    for (var i = 0; i < 60; i++) {
+      var el = document.createElement('span');
+      var size = 8 + Math.random() * 6;                      // 8 to 14 px
+      var round = Math.random() < 0.4;
+      el.className = 'confetti-piece k' + (i % 4) + (round ? ' is-round' : '');
+      el.style.setProperty('--w', size.toFixed(1) + 'px');
+      el.style.setProperty('--h', (round ? size : size * (0.45 + Math.random() * 0.2)).toFixed(1) + 'px');
+      el.style.setProperty('--x', (Math.random() * 100).toFixed(1) + '%');
+      el.style.setProperty('--drift', (Math.random() * 160 - 80).toFixed(0) + 'px');
+      el.style.setProperty('--spin', ((Math.random() < 0.5 ? -1 : 1) * (360 + Math.random() * 720)).toFixed(0) + 'deg');
+      el.style.setProperty('--dur', (5 + Math.random() * 4).toFixed(2) + 's');
+      el.style.setProperty('--delay', (Math.random() * 4).toFixed(2) + 's');
+      sx.confetti.appendChild(el);
+    }
+  })();
 
   renderSurprise(surprise);
 

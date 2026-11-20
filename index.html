@@ -409,6 +409,18 @@
       </div>
       <p class="cake-hint" id="cake-hint"></p>
       <p class="cake-count" id="cake-count" role="status"></p>
+      <!-- Phase 8 finale: no src here, script.js sets the four from data.js (finale.chibis, same order) when the cake first shows -->
+      <div class="chibis" aria-hidden="true">
+        <div class="chibi-pair is-left">
+          <div class="chibi" data-i="0"><img alt="" decoding="async" draggable="false"></div>
+          <div class="chibi" data-i="1"><img alt="" decoding="async" draggable="false"></div>
+        </div>
+        <div class="chibi-pair is-right">
+          <div class="chibi" data-i="2"><img alt="" decoding="async" draggable="false"></div>
+          <div class="chibi" data-i="3"><img alt="" decoding="async" draggable="false"></div>
+        </div>
+      </div>
+      <button type="button" class="replay finale-replay" id="replay-finale" aria-label="Replay from the start" autocomplete="off">replay from the start</button>
     </div>
   </section>
 
@@ -421,6 +433,9 @@
       <button type="button" class="replay" id="replay-video" aria-label="Replay from the start" autocomplete="off">replay from the start</button>
     </div>
   </section>
+
+  <!-- Phase 8: confetti, filled by script.js. Above the cake, below the mini player. -->
+  <div class="confetti" id="confetti" aria-hidden="true"></div>
 
   <div class="mini-player" id="mini-player" role="group" aria-label="Music player" inert>
     <div class="mini-cassette" id="mini-cassette" aria-hidden="true">
