@@ -1071,9 +1071,9 @@
   });
   els.replay.addEventListener('click', function () { location.reload(); });
 
-  // ---------- Surprise: button, scene change, cake (Phase 6) ----------
+  // ---------- Surprise: button, scene change, cake (Phase 6), video (Phase 7) ----------
   // Event driven. Nothing here reads the audio clock, so song 2 playing, pausing or ending cannot change it.
-  // State is { scene, blown }. renderSurprise(state) is the only code that touches the scene classes,
+  // State is { scene, blown }, scene is "letter", "cake" or "video". renderSurprise(state) is the only code that touches the scene classes,
   // the candles and the counter. A click only updates the state and calls it.
 
   var SURP = SITE.surprise;
@@ -1085,6 +1085,10 @@
     stack: $('cake-stack'),
     hint:  $('cake-hint'),
     count: $('cake-count'),
+    vScene: $('video-scene'),
+    vFrame: $('video-frame'),
+    video:  $('surprise-video'),
+    vReplay: $('replay-video'),
     cakes: Array.prototype.slice.call(document.querySelectorAll('#cake-scene .cd')),    // candle art, in DOM order
     btns:  Array.prototype.slice.call(document.querySelectorAll('#cake-scene .candle')) // candle buttons, same order
   };
@@ -1094,6 +1098,8 @@
   var sceneBusy = false;                                     // true from the surprise tap until the cake has settled
   var sceneWait = null;                                      // the step waiting for a transitionend
   var shownLeft = -1;
+  var videoLoaded = false;                                   // the video's src is set once, when the cake first shows
+  var handedOff = false;                                     // the 17th candle's handoff runs exactly once
 
   sx.btn.textContent = SURP.button;
   sx.btn.setAttribute('aria-label', SURP.button);
@@ -1101,9 +1107,17 @@
 
   function renderSurprise(st) {
     var cake = st.scene === 'cake';
-    els.scene.classList.toggle('is-away', cake);             // the letter and envelope scene fades out
-    if (cake) els.scene.setAttribute('inert', '');
-    sx.scene.classList.toggle('is-in', cake);                // the cake scene rises in
+    var video = st.scene === 'video';
+    els.scene.classList.toggle('is-away', cake || video);    // the letter and envelope scene fades out
+    if (cake || video) els.scene.setAttribute('inert', '');
+    sx.scene.classList.toggle('is-in', cake || video);       // the cake scene rises in and stays until the video has faded in
+    sx.scene.classList.toggle('is-gone', video);             // crossfade: the cake fades out
+    sx.vScene.classList.toggle('is-in', video);              // and the video scene fades in
+    if (video) {
+      sx.scene.setAttribute('inert', '');
+      els.mini.setAttribute('inert', '');                    // the mini player is hidden while the video shows
+      els.mini.classList.add('is-away');
+    }
 
     var left = total;
     for (var i = 0; i < total; i++) {
@@ -1138,6 +1152,54 @@
     sceneWait = { since: performance.now(), go: go };
   }
 
+  // ----- Video (Phase 7) -----
+
+  // Set the source once, when the cake scene first shows, so the file buffers while the candles go out.
+  // Nothing is requested at page load: the element has no src in index.html.
+  function loadVideo() {
+    if (videoLoaded) return;
+    videoLoaded = true;
+    sx.video.preload = 'auto';
+    sx.video.src = SURP.video;
+  }
+
+  // Song 2 eases to 0 over SONG2_FADE_MS on the frame loop, then pauses and gets its volume back.
+  // Missing, blocked, paused or ended: nothing to fade. iPhone ignores audio.volume, so there it stops at once.
+  var SONG2_FADE_MS = 1200;
+  var fade2 = null;
+
+  function startSong2Fade() {
+    if (audio2.error || state.song2Rejected || audio2.paused || audio2.ended) return;
+    var from = audio2.volume;
+    audio2.volume = from * 0.5;
+    var settable = audio2.volume !== from;
+    audio2.volume = from;
+    if (!settable) { audio2.pause(); return; }
+    fade2 = { from: from, start: performance.now() };
+  }
+
+  function stepSong2Fade(now) {
+    if (!fade2) return;
+    var u = Math.min(1, Math.max(0, (now - fade2.start) / SONG2_FADE_MS));
+    audio2.volume = fade2.from * 0.5 * (1 + Math.cos(Math.PI * u));
+    if (u >= 1) {
+      audio2.pause();
+      audio2.volume = fade2.from;
+      fade2 = null;
+    }
+  }
+
+  // Called from inside the 17th candle's click handler, so the browser allows sound. Runs once.
+  // A rejected play() or a missing file is fine: the native controls are the fallback. No retries.
+  function handoff() {
+    if (handedOff) return;
+    handedOff = true;
+    loadVideo();                                             // no-op in practice, the cake already loaded it
+    startSong2Fade();
+    var p = sx.video.play();
+    if (p && p.catch) p.catch(function () {});
+  }
+
   // The first lit candle at or after index from (wrapping round)
   function focusNextLit(from) {
     for (var k = 0; k < total; k++) {
@@ -1161,6 +1223,7 @@
     closeLetter();
     waitFor(els.panel, 'opacity', function () {
       surprise.scene = 'cake';
+      loadVideo();
       renderSurprise(surprise);
       waitFor(sx.stack, 'opacity', settleCake);
     });
@@ -1173,10 +1236,27 @@
       if (surprise.scene !== 'cake' || sceneBusy || surprise.blown.has(n)) return;
       var hadFocus = document.activeElement === btn;
       surprise.blown.add(n);
+      var last = surprise.blown.size === total;
+      if (last) {
+        surprise.scene = 'video';                            // set before anything else: a second tap is refused at the top
+        handoff();
+      }
       renderSurprise(surprise);
-      if (hadFocus) focusNextLit(i + 1);                     // keyboard: carry on with the next lit candle
+      if (last) {
+        // The video scene stays inert while it fades in, so a second tap on the last candle cannot land on the
+        // video (a tap on the controls would pause it). Once it is in, it goes live and focus moves to its
+        // frame (the frame ignores Enter and Space).
+        waitFor(sx.vScene, 'opacity', function () {
+          sx.vScene.removeAttribute('inert');
+          sx.vFrame.focus({ preventScroll: true });
+        });
+      } else if (hadFocus) {
+        focusNextLit(i + 1);                                 // keyboard: carry on with the next lit candle
+      }
     });
   });
+
+  sx.vReplay.addEventListener('click', function () { location.reload(); });
 
   renderSurprise(surprise);
 
@@ -1227,6 +1307,7 @@
     }
     if (sceneWait && now - sceneWait.since > SCENE_STUCK_MS) sceneWait.go();
     syncPlayState();
+    stepSong2Fade(now);
     var bt = boardTime();
     if (state.tapped) {
       stepSong1Fade(now);

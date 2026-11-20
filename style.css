@@ -1092,3 +1092,130 @@ body::before {
   .cd.is-out .smoke { animation: none; display: none; }
   .surprise-btn:active:not(:disabled) { transform: none; }
 }
+
+/* ============================================================
+   Phase 7: portrait video scene and the handoff from the cake
+   Event driven, like the cake. script.js renderSurprise(state) toggles .is-gone (cake scene),
+   .is-in (video scene) and .is-away (mini player). Motion is transform and opacity only.
+   ============================================================ */
+
+/* Cake scene while the video scene fades in: the cake fades out, then the layer is hidden for good */
+.cake-scene.is-in.is-gone {
+  visibility: hidden;
+  transition: visibility 0s linear 0.8s;
+}
+
+.cake-scene.is-in.is-gone .cake-stack {
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+
+/* Mini player: fades out when the video scene shows (script.js also makes it inert) */
+.mini-player.is-away,
+.mini-player.is-visible.is-away {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.8s ease, visibility 0s linear 0.8s;
+}
+
+/* The whole viewport, above the cake, below the mini player. Opaque cream paper, the same as the body,
+   so the collage pile behind it never meets the frame. It fades in as one layer. */
+.video-scene {
+  position: fixed;
+  inset: 0;
+  z-index: 12;
+  display: grid;
+  place-content: center;
+  padding:
+    env(safe-area-inset-top)
+    env(safe-area-inset-right)
+    env(safe-area-inset-bottom)
+    env(safe-area-inset-left);
+  background: radial-gradient(ellipse at 50% 45%, var(--paper) 55%, var(--paper-dark) 135%);
+  background-color: var(--paper);
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.video-scene.is-in {
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity 0.8s ease;
+}
+
+.video-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  transform: translateY(24px);
+  will-change: transform;
+}
+
+.video-scene.is-in .video-stack {
+  transform: none;
+  transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.25, 1);
+}
+
+/* Frame height: min(80dvh, 760px), and never more than the screen minus the safe areas, the replay link
+   (44px + 12px gap) and 20px of air above and below, nor wider than 92% of the screen. The width comes from
+   the 9:16 ratio, so on a short or narrow screen the frame gets smaller and is never cropped.
+   --fh has a vh fallback for browsers without dvh. */
+.video-stack {
+  --fh: min(80vh, 760px, calc(100vh - 96px), calc(100vw * 0.92 * 16 / 9));
+}
+
+@supports (height: 1dvh) {
+  .video-stack {
+    --fh: min(
+      80dvh,
+      760px,
+      calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 96px),
+      calc((100vw - env(safe-area-inset-left) - env(safe-area-inset-right)) * 0.92 * 16 / 9)
+    );
+  }
+}
+
+.video-frame {
+  flex: 0 0 auto;
+  width: calc(var(--fh) * 9 / 16);
+  height: var(--fh);
+  overflow: hidden;
+  background: var(--choc-dark);
+  border: 3px solid var(--brown);
+  border-radius: 22px;
+  box-shadow: 0 5px 0 rgba(90, 58, 42, 0.2), 0 14px 32px rgba(90, 58, 42, 0.28);
+}
+
+.surprise-video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: var(--choc-dark);
+}
+
+/* Same link as the letter's, with a 44px tap target at every size */
+.video-scene .replay {
+  flex: 0 0 auto;
+  min-height: 44px;
+  margin: 0;
+  padding: 12px 16px;
+  font-size: 15px;
+}
+
+/* ---------- Reduced motion ---------- */
+/* Scenes swap with a plain opacity change, no rise */
+
+@media (prefers-reduced-motion: reduce) {
+  .cake-scene.is-in.is-gone { transition: visibility 0s linear 0.3s; }
+  .cake-scene.is-in.is-gone .cake-stack { transition: opacity 0.3s ease; }
+  .mini-player.is-away,
+  .mini-player.is-visible.is-away { transition: opacity 0.3s ease, visibility 0s linear 0.3s; }
+  .video-scene.is-in { transition: opacity 0.3s ease; }
+  .video-stack { transform: none; }
+  .video-scene.is-in .video-stack { transition: none; }
+}

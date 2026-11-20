@@ -412,6 +412,16 @@
     </div>
   </section>
 
+  <section class="video-scene" id="video-scene" aria-label="Surprise video" inert>
+    <div class="video-stack" id="video-stack">
+      <div class="video-frame" id="video-frame" tabindex="-1">
+        <!-- no src and no muted here: script.js sets src from data.js when the cake first shows -->
+        <video class="surprise-video" id="surprise-video" playsinline controls preload="none" aria-label="Surprise video"></video>
+      </div>
+      <button type="button" class="replay" id="replay-video" aria-label="Replay from the start" autocomplete="off">replay from the start</button>
+    </div>
+  </section>
+
   <div class="mini-player" id="mini-player" role="group" aria-label="Music player" inert>
     <div class="mini-cassette" id="mini-cassette" aria-hidden="true">
       <svg viewBox="0 0 52 34" xmlns="http://www.w3.org/2000/svg">
