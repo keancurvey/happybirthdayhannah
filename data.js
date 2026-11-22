@@ -2,7 +2,7 @@ window.SITE = {
   songs: {
     main:   { src: "music/song1.mp3", title: "cherry flavoured love inside your heart", artist: "wave to earth" },
     letter: { src: "music/song2.mp3", title: "The Only Exception (instrumental)", artist: "Paramore" },
-    birthday: { src: "music/song3.mp3", title: "Happy Birthday", artist: "" }
+    birthday: { src: "music/song3.mp3", title: "Happy Birthday", artist: "kambing" }
   },
   photos: [
     { file: "images/01.png", title: "Born in Pili", cue: 10,
@@ -30,7 +30,7 @@ window.SITE = {
     { file: "images/12.png", title: "The future", cue: 208,
       caption: "Look at what’s ahead, her own path, her own lens, her own colors. Wherever she goes, she brings light to everyone around her. You’ve brightened my world more than you know." },
     { file: "images/13.png", title: "The sign-off", cue: 226,
-      caption: "One more year of you, and the world is better for it. Happy Birthday, Hannah Del Mundo 💗🎂" }
+      caption: "One more year of you, and the world is better for it. Happy Birthday, Hannah Venice J. Del Mundo 💗🎂" }
   ],
   transition: { fromEnd: 24 },
   letter: {
